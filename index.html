@@ -639,6 +639,14 @@
     border-right:1.6px solid #2f7a4c; border-bottom:1.6px solid #2f7a4c; transform:rotate(45deg);
   }
   @keyframes spin{ to{ transform:rotate(360deg); } }
+  .log-entry.cancel .ico{ background:#fdecec; border-color:#fdecec; }
+  .log-entry.cancel .ico::before, .log-entry.cancel .ico::after{
+    content:""; position:absolute; left:6px; top:2.5px; width:1.6px; height:8px;
+    background:#c23b3b; border-radius:1px;
+  }
+  .log-entry.cancel .ico::before{ transform:rotate(45deg); }
+  .log-entry.cancel .ico::after{ transform:rotate(-45deg); }
+  .log-entry.cancel .msg b{ color:#a52f2f; }
   .log-entry .msg b{ color:#1c2423; font-weight:600; }
   .log-entry .msg .fine{ display:block; color:#8b938f; font-size:10.3px; margin-top:1px; }
 
@@ -748,6 +756,44 @@
     transition:background .15s;
   }
   .done-btn:hover{ background:var(--navy-deep); }
+
+  .confirm-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,16,20,.55);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:220;
+    padding:20px;
+  }
+  .confirm-overlay.show{ display:flex; }
+  .confirm-modal{
+    width:360px; max-width:100%;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 40px 80px rgba(0,0,0,.45);
+    padding:26px 26px 22px;
+    text-align:center;
+    opacity:0; transform:translateY(10px) scale(.97);
+    animation:approveIn .26s ease forwards;
+  }
+  .confirm-icon{ width:44px; height:44px; margin:0 auto 12px; }
+  .confirm-title{ font-size:15px; font-weight:700; color:#1c2423; margin-bottom:8px; font-family:var(--serif); }
+  .confirm-text{ font-size:12px; color:#4a5250; line-height:1.55; margin-bottom:18px; }
+  .confirm-actions{ display:flex; flex-direction:column; gap:9px; }
+  .confirm-btn{
+    font-size:13px; font-weight:700;
+    padding:10px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:background .15s;
+  }
+  .confirm-btn.primary{ background:var(--navy); color:#fff; }
+  .confirm-btn.primary:hover{ background:var(--navy-deep); }
+  .confirm-btn.ghost{ background:#fff; color:#3d4645; border-color:#d7dde3; }
+  .confirm-btn.ghost:hover{ background:#f4f6f7; }
+  .confirm-btn.danger{ background:#c23b3b; color:#fff; }
+  .confirm-btn.danger:hover{ background:#a52f2f; }
 
   .notar-overlay{
     position:fixed; inset:0;
@@ -1074,6 +1120,30 @@
     </div>
   </div>
 
+  <div class="confirm-overlay" id="confirmSignOverlay">
+    <div class="confirm-modal">
+      <div class="confirm-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#e7edf3"/><path d="M7.5 12.3 L10.4 15.2 L16.5 8.8" fill="none" stroke="#163a5c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="confirm-title">Bereit zur Signatur</div>
+      <div class="confirm-text">Alle angeforderten Unterschriften liegen vor. Möchten Sie nun die Urkunde mit Ihrer qualifizierten elektronischen Signatur versehen?</div>
+      <div class="confirm-actions">
+        <button class="confirm-btn primary" id="confirmYesBtn">Ja</button>
+        <button class="confirm-btn ghost" id="confirmNoBtn">Nein – Beurkundung abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-overlay" id="cancelWarnOverlay">
+    <div class="confirm-modal">
+      <div class="confirm-icon"><svg viewBox="0 0 24 24"><path d="M12 3 L22 20 H2 Z" fill="#fdecec" stroke="#c23b3b" stroke-width="1.3" stroke-linejoin="round"/><rect x="11.1" y="9" width="1.8" height="6" rx=".9" fill="#c23b3b"/><rect x="11.1" y="16.2" width="1.8" height="1.8" rx=".9" fill="#c23b3b"/></svg></div>
+      <div class="confirm-title">Achtung</div>
+      <div class="confirm-text">Wollen Sie wirklich die Beurkundung abbrechen?</div>
+      <div class="confirm-actions">
+        <button class="confirm-btn ghost" id="cancelBackBtn">Zurück</button>
+        <button class="confirm-btn danger" id="cancelConfirmBtn">Ja, abbrechen</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 (function(){
   const $ = (id) => document.getElementById(id);
@@ -1084,6 +1154,8 @@
   const approveOverlay = $('approveOverlay'), approveDoc = $('approveDoc'), approveBtn = $('approveBtn'), pageEl = $('page');
   const pinOverlay = $('pinOverlay'), pinDisplay = $('pinDisplay'), pinGrid = $('pinGrid');
   const doneOverlay = $('doneOverlay'), doneBtn = $('doneBtn');
+  const confirmSignOverlay = $('confirmSignOverlay'), confirmYesBtn = $('confirmYesBtn'), confirmNoBtn = $('confirmNoBtn');
+  const cancelWarnOverlay = $('cancelWarnOverlay'), cancelBackBtn = $('cancelBackBtn'), cancelConfirmBtn = $('cancelConfirmBtn');
   const notarOverlay = $('notarOverlay');
   const fastMode = $('fastMode');
 
@@ -1142,6 +1214,29 @@
       approveBtn.onclick = () => {
         approveOverlay.classList.remove('show');
         resolve();
+      };
+    });
+  }
+
+  function confirmBeforeSigning(){
+    return new Promise((resolve) => {
+      function openConfirm(){ confirmSignOverlay.classList.add('show'); }
+      openConfirm();
+      confirmYesBtn.onclick = () => {
+        confirmSignOverlay.classList.remove('show');
+        resolve(true);
+      };
+      confirmNoBtn.onclick = () => {
+        confirmSignOverlay.classList.remove('show');
+        cancelWarnOverlay.classList.add('show');
+      };
+      cancelBackBtn.onclick = () => {
+        cancelWarnOverlay.classList.remove('show');
+        openConfirm();
+      };
+      cancelConfirmBtn.onclick = () => {
+        cancelWarnOverlay.classList.remove('show');
+        resolve(false);
       };
     });
   }
@@ -1335,6 +1430,16 @@
     log('Unterschrift von Bernd Berger erfasst', null, 'ok');
 
     setStep(4,'done');
+
+    const wantsToSign = await confirmBeforeSigning();
+    if(!wantsToSign){
+      const cr = log('Beurkundung durch den Notar abgebrochen', 'Vorgang wurde vor der Signatur beendet', 'cancel');
+      xsignBtnLabel.textContent = 'XSign — abgebrochen';
+      xsignBtn.classList.remove('busy');
+      stopClock();
+      running = false;
+      return;
+    }
 
     // Step 5 — Signatur und Rückgabe
     setStep(5,'active');
