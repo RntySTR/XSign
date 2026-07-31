@@ -1296,7 +1296,7 @@
 
     // Step 1 — Übergabe
     setStep(1,'active');
-    let r = log('Verbindung zur Signaturstelle wird hergestellt', 'lokaler Dienst · kein externer Server');
+    let r = log('Verbindung zur Signaturstelle wird hergestellt', 'Signaturgerät verbunden');
     await delay(700); markDone(r);
     r = log('Dokument wird aus der Notarsoftware übernommen', 'Kaufvertrag_UR-142-2026.docx');
     await delay(750); markDone(r);
@@ -1304,7 +1304,7 @@
 
     // Step 2 — Genehmigung durch die Beteiligten
     setStep(2,'active');
-    r = log('Dokument wird den Beteiligten vollständig zur Genehmigung angezeigt', 'zweite Kontrolle vor Beginn der Unterschriften');
+    r = log('Dokument wird den Beteiligten vollständig zur Genehmigung angezeigt', 'Genehmigung der Beteiligten wird abgewartet');
     await delay(600); markDone(r);
     await waitForApproval();
     log('Dokument durch die Beteiligten genehmigt', null, 'ok');
@@ -1312,9 +1312,9 @@
 
     // Step 3 — Aufruf aus Word
     setStep(3,'active');
-    r = log('Unterschriftenfelder erkannt', '2 Felder, bereits in der Notarsoftware angelegt');
+    r = log('Unterschriftenfelder erkannt', '2 Beteiligte wurden von Notarsoftware übergeben');
     await delay(700); markDone(r);
-    r = log('Anlagen bereits mit dem Dokument verbunden', 'kein gesonderter Anlagen-Import nötig');
+    r = log('Anlagen abgefragt', '1 Anlage übergeben');
     await delay(650); markDone(r);
     setStep(3,'done');
 
@@ -1341,7 +1341,7 @@
     // Step 5 — Signatur und Rückgabe
     setStep(5,'active');
     setSignerState('notar','active');
-    r = log('PIN-Eingabe zur Freigabe der Signaturkarte', 'lokale Eingabe, die PIN verlässt das Gerät nicht');
+    r = log('PIN-Eingabe zur Freigabe der Signaturkarte', 'Bitte geben Sie die PIN auf Ihrem Signaturgerät an');
     await enterPin();
     markDone(r);
 
@@ -1368,7 +1368,7 @@
     markDone(r);
     setSignerState('notar','done');
 
-    r = log('Dokument wird nach PDF/A-2b gewandelt', 'Wandlung erfolgt in der Notarsoftware, hier nur angezeigt');
+    r = log('Dokument wird nach PDF/A-2b gewandelt', 'Wandlung erfolg durch Notarsoftware');
     await delay(750); markDone(r);
 
     r = log('Rückgabe an die Notarsoftware', 'signiertes PDF/A · Signaturdatei · Status je Unterzeichner');
