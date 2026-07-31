@@ -75,11 +75,21 @@
   .speed-toggle{ display:flex; align-items:center; gap:6px; font-size:12px; color:#6c6a63; }
 
   /* ---------- stage: Word window + XSign pop-up side by side ---------- */
+  .stage-outer{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    overflow:visible;
+  }
+  .stage-inner{
+    transform-origin:top center;
+  }
+
   .stage{
     width:100%;
     max-width:1450px;
     display:flex;
-    flex-wrap:wrap;
+    flex-wrap:nowrap;
     gap:24px;
     align-items:flex-start;
     justify-content:center;
@@ -497,21 +507,23 @@
 
   /* ---------- XSign pop-up window (XNP-style light UI) ---------- */
   .xsign-window{
-    width:0;
-    max-width:min(360px, 100%);
+    width:360px;
+    flex-basis:360px;
     opacity:0;
+    pointer-events:none;
     overflow:hidden;
     background:#fff;
     border-radius:9px;
     box-shadow:0 26px 55px -14px rgba(15,50,50,.3), 0 2px 10px rgba(15,50,50,.12);
     border:1px solid #cfe0df;
-    transition:width .42s cubic-bezier(.2,.7,.2,1), opacity .3s ease;
+    transform:translateY(6px) scale(.97);
+    transition:opacity .32s ease, transform .32s cubic-bezier(.2,.7,.2,1);
     display:flex;
     flex-direction:column;
     flex-shrink:0;
     align-self:flex-start;
   }
-  .xsign-window.show{ width:360px; opacity:1; }
+  .xsign-window.show{ opacity:1; pointer-events:auto; transform:translateY(0) scale(1); }
 
   .xnp-topline{ height:4px; background:linear-gradient(90deg,var(--navy-deep),var(--navy-slate)); }
   .xnp-titlebar{
@@ -797,11 +809,7 @@
     *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
   }
 
-  @media (max-width:1360px){
-    .stage{ justify-content:center; }
-  }
   @media (max-width:760px){
-    .xsign-window.show{ width:100%; max-width:100%; }
     .page{ padding:34px 24px 44px; }
   }
 </style>
@@ -818,7 +826,9 @@
     </div>
   </div>
 
-  <div class="stage">
+  <div class="stage-outer" id="stageOuter">
+   <div class="stage-inner" id="stageInner">
+    <div class="stage" id="stage">
     <div class="window">
       <div class="titlebar">
         <div class="word-mark">W</div>
@@ -1010,6 +1020,8 @@
       </div>
     </div>
   </div>
+   </div>
+  </div>
 
   <div class="notar-overlay" id="notarOverlay">
     <div class="notar-modal">
@@ -1034,7 +1046,7 @@
     <div class="pin-modal">
       <div class="pin-eyebrow">XSign · Signaturkarte des Notars</div>
       <div class="pin-title">PIN-Eingabe erforderlich</div>
-      <div class="pin-sub">Geben Sie als Notar die PIN der Signaturkarte ein, um die qualifizierte Signatur freizugeben.</div>
+      <div class="pin-sub">Bitte geben Sie Ihre PIN an, um das Dokument zu signieren.</div>
       <div class="pin-display" id="pinDisplay"></div>
       <div class="pin-grid" id="pinGrid">
         <div class="pin-key" data-num="1">1</div>
@@ -1228,11 +1240,12 @@
     else { stateEl.textContent = 'ausstehend'; }
   }
 
+  let stageScale = 1;
   function positionPad(targetField){
     const stageRect = docStage.getBoundingClientRect();
     const fieldRect = targetField.getBoundingClientRect();
-    const left = fieldRect.left - stageRect.left + docStage.scrollLeft;
-    const top = fieldRect.top - stageRect.top + docStage.scrollTop - 128;
+    const left = (fieldRect.left - stageRect.left) / stageScale + docStage.scrollLeft;
+    const top = (fieldRect.top - stageRect.top) / stageScale + docStage.scrollTop - 128;
     padBubble.style.left = Math.max(8, left) + 'px';
     padBubble.style.top = Math.max(8, top) + 'px';
   }
@@ -1405,6 +1418,24 @@
       if(activeField) positionPad(activeField);
     }
   });
+
+  // Keep Word and XSign side by side on any screen width by scaling the
+  // whole stage down uniformly, instead of letting it wrap onto two rows.
+  const stageOuter = $('stageOuter'), stageInner = $('stageInner');
+  function fitStage(){
+    stageInner.style.transform = 'scale(1)';
+    stageOuter.style.height = 'auto';
+    const naturalWidth = stageInner.scrollWidth;
+    const naturalHeight = stageInner.getBoundingClientRect().height;
+    const available = stageOuter.clientWidth;
+    const scale = Math.min(1, available / naturalWidth);
+    stageScale = scale;
+    stageInner.style.transform = 'scale(' + scale + ')';
+    stageOuter.style.height = (naturalHeight * scale) + 'px';
+  }
+  fitStage();
+  window.addEventListener('resize', fitStage);
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fitStage); }
 })();
 </script>
 </body>
