@@ -1,0 +1,3136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>XSign – Clickdummy · NKBW</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --ink:#141414;
+    --ink-soft:#53565c;
+    --paper:#ffffff;
+    --rule:#dedad2;
+    --navy:#163a5c;
+    --navy-deep:#0d2540;
+    --navy-pale:#e7edf3;
+    --navy-slate:#7086a0;
+    /* NOTARIUS brand */
+    --nx-ink:#121a28;
+    --nx-ink-2:#1c2739;
+    --nx-line:#e3e8ef;
+    --nx-surface:#f7f9fc;
+    --nx-gold:#d9b45b;
+    --nx-gold-lt:#f2dc9e;
+    --nx-gold-dk:#a87f2c;
+    --nx-blue:#3b82f6;
+    --nx-blue-dk:#2f6fc4;
+    --nx-blue-soft:#e7f0fc;
+    --nx-muted:#64748b;
+    --nx-body:#475569;
+    --nx-ui:"Segoe UI Variable Display","Segoe UI",Inter,system-ui,-apple-system,sans-serif;
+    /* iOS */
+    --ios-ui:-apple-system,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,system-ui,sans-serif;
+    --ios-blue:#0a84ff;
+    --ios-blue-dk:#0069d9;
+    --office-blue:#2b579a;
+    --office-blue-dark:#1c3f73;
+    --office-ribbon:#f3f2f1;
+    --office-ribbon-line:#e1dfdd;
+    --good:#0f7a3d;
+    --desk:#e4e2dc;
+    --serif: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+    --ui: "Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+    --mono: "Cascadia Code","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--ui);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 700px at 15% -10%, #eceae4 0%, var(--desk) 55%),
+      var(--desk);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:22px 18px 40px;
+  }
+
+  /* ---------- demo control bar ---------- */
+  .demo-bar{
+    width:100%;
+    max-width:1450px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:9px 4px 14px;
+    color:#6c6a63;
+    font-size:12.5px;
+  }
+  .demo-bar .tag{
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:#89877e;
+  }
+  .demo-bar .controls{ display:flex; align-items:center; gap:10px; }
+  .demo-btn{
+    font-family:var(--ui);
+    font-size:12.5px;
+    font-weight:600;
+    padding:7px 13px;
+    border-radius:5px;
+    border:1px solid #cac7bd;
+    background:#fbfaf8;
+    color:#3a392f;
+    cursor:pointer;
+    transition:background .15s, border-color .15s;
+  }
+  .demo-btn:hover{ background:#fff; border-color:#b3af9f; }
+  .speed-toggle{ display:flex; align-items:center; gap:6px; font-size:12px; color:#6c6a63; }
+
+  /* ---------- stage: Word window + XSign pop-up side by side ---------- */
+  .stage-outer{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    overflow:visible;
+  }
+  .stage-inner{
+    transform-origin:top center;
+  }
+
+  .stage{
+    width:100%;
+    max-width:1450px;
+    display:flex;
+    flex-wrap:nowrap;
+    gap:24px;
+    align-items:flex-start;
+    justify-content:center;
+  }
+
+  /* ---------- Word window shell ---------- */
+  .window{
+    width:min(1034px, 100%);
+    flex-shrink:0;
+    background:var(--paper);
+    border-radius:8px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(20,20,15,.35), 0 2px 10px rgba(20,20,15,.12);
+    border:1px solid #d9d6cd;
+  }
+
+  .titlebar{
+    background:var(--office-blue-dark);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 12px;
+    height:34px;
+    font-size:12.5px;
+  }
+  .titlebar .word-mark{
+    width:18px; height:18px; border-radius:3px;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-weight:700; font-size:12px; color:var(--office-blue);
+  }
+  .titlebar .fname{ opacity:.95; }
+  .titlebar .fname b{ font-weight:600; }
+  .titlebar .spacer{ flex:1; }
+  .titlebar .dots{ display:flex; gap:7px; opacity:.8; }
+  .titlebar .dots span{ width:11px; height:11px; }
+  .titlebar .status-badge{
+    display:none;
+    align-items:center; gap:5px;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.28);
+    padding:2px 8px 2px 6px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+  }
+  .titlebar .status-badge.show{ display:flex; }
+  .titlebar .status-badge .dot{ width:6px; height:6px; border-radius:50%; background:#7ee08a; }
+
+  .tabs{
+    display:flex;
+    align-items:flex-end;
+    background:var(--office-blue);
+    padding:0 10px;
+    gap:2px;
+    height:34px;
+  }
+  .tabs .tab{
+    color:rgba(255,255,255,.78);
+    font-size:12.5px;
+    padding:9px 12px 8px;
+    cursor:default;
+  }
+  .tabs .tab.active{
+    background:var(--office-ribbon);
+    color:#1b1a19;
+    border-radius:4px 4px 0 0;
+    font-weight:600;
+  }
+  .tabs .tab.custom{ color:#ffe7ae; font-weight:600; }
+  .tabs .tab.custom.active{ color:#8a5a00; }
+
+  .ribbon{
+    background:var(--office-ribbon);
+    border-bottom:1px solid var(--office-ribbon-line);
+    display:flex;
+    align-items:stretch;
+    padding:8px 10px 6px;
+    gap:0;
+    overflow-x:auto;
+  }
+  .rgroup{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:0 12px;
+    border-right:1px solid var(--office-ribbon-line);
+    min-width:max-content;
+  }
+  .rgroup:last-child{ border-right:none; }
+  .rgroup .rbuttons{ display:flex; gap:14px; }
+  .ricon-btn{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10.5px; color:#3b3a37;
+    cursor:default;
+    padding:4px 5px 3px;
+    border-radius:4px;
+  }
+  .ricon-btn:hover{ background:#e9e7e4; }
+  .ricon-btn .glyph{
+    width:22px; height:20px;
+    display:flex; align-items:center; justify-content:center;
+    color:#48453d;
+  }
+  .ricon-btn .glyph svg{ width:18px; height:18px; display:block; }
+  .rgroup .rlabel{
+    margin-top:5px; font-size:10px; color:#7a7873;
+  }
+
+  .rgroup.signature{
+    border-right:none;
+    margin-left:auto;
+    padding-right:2px;
+  }
+  .xsign-ribbon-btn{
+    display:flex; align-items:center; gap:9px;
+    background:#fff;
+    color:var(--navy-deep);
+    padding:7px 14px 7px 9px;
+    border-radius:6px;
+    cursor:pointer;
+    border:1px solid #c9d2da;
+    transition:transform .12s, box-shadow .12s, background .15s;
+  }
+  .xsign-ribbon-btn:hover{ transform:translateY(-1px); box-shadow:0 4px 10px rgba(20,45,70,.15); background:#f6f8fa; }
+  .xsign-ribbon-btn:active{ transform:translateY(0); }
+  .xsign-ribbon-btn.busy{ cursor:progress; opacity:.85; }
+  .xsign-mark{
+    width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .xsign-mark svg{ width:22px; height:22px; }
+  .xsign-ribbon-btn .xtext{ text-align:left; line-height:1.15; }
+  .xsign-ribbon-btn .xtext b{ display:block; font-size:12.5px; letter-spacing:.02em; color:var(--navy-deep); }
+  .xsign-ribbon-btn .xtext span{ display:block; font-size:9.5px; color:#5c6672; max-width:118px; }
+
+  /* ---------- document canvas ---------- */
+  .doc-stage{
+    position:relative;
+    background:#c9c6bd;
+    padding:26px 0 40px;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    width:660px;
+    max-width:92%;
+    background:#fff;
+    box-shadow:0 6px 18px rgba(0,0,0,.18);
+    padding:52px 58px 60px;
+    font-family:"Calibri","Segoe UI",Arial,sans-serif;
+    font-size:13.5px;
+    line-height:1.65;
+    color:#222;
+    position:relative;
+  }
+  .page .doc-heading{
+    font-weight:700;
+    letter-spacing:.03em;
+    margin-bottom:14px;
+    font-size:13px;
+  }
+  .page p{ margin:0 0 12px; }
+  .page .list-line{ margin:0 0 3px; padding-left:2px; }
+  .page .attest{ margin-top:26px; }
+
+  .sig-block{
+    display:flex;
+    gap:34px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+  .sig-field{
+    flex:1;
+    min-width:220px;
+    border:1px dashed #b9b6ac;
+    border-radius:3px;
+    padding:10px 12px 12px;
+    position:relative;
+    background:#fcfcfb;
+    transition:border-color .25s, background .25s;
+  }
+  .sig-field .sig-label{
+    font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:#9a978d; margin-bottom:14px; display:block; font-weight:600;
+  }
+  .sig-field .sig-name{ font-size:13px; color:#333; }
+  .sig-field .sig-canvas{
+    height:38px; margin-top:6px;
+    display:flex; align-items:flex-end;
+    border-bottom:1px solid #d8d5cb;
+  }
+  .sig-text{
+    font-family:"Segoe Script","Segoe Print","Brush Script MT","Lucida Handwriting",cursive;
+    font-size:23px;
+    color:#1d2b26;
+    line-height:1;
+    padding-bottom:4px;
+    white-space:nowrap;
+    clip-path:inset(0 100% -20% 0);
+  }
+  .sig-text.reveal{ animation:revealSig 1.1s cubic-bezier(.25,.75,.35,1) forwards; }
+  @keyframes revealSig{ to{ clip-path:inset(0 0 -20% 0); } }
+  .sig-field.waiting{ border-color:var(--navy); background:#f2fafa; }
+  .sig-field.signed{ border-style:solid; border-color:#cfe7d8; background:#fbfdfc; }
+  .sig-field.signed .sig-label::after{
+    content:"✓ signiert";
+    float:right;
+    color:var(--good);
+    font-weight:700;
+    letter-spacing:0;
+    text-transform:none;
+    font-size:10px;
+  }
+
+  .notar-field{ margin-top:24px; max-width:360px; }
+  .qes-slot{ min-height:38px; margin-top:6px; display:flex; align-items:center; }
+  .qes-stamp{
+    display:inline-flex; align-items:center; gap:10px;
+    border:1px solid #b7c6d3; background:#f2f6fa;
+    border-radius:6px;
+    padding:8px 13px 8px 10px;
+    opacity:0; transform:translateY(5px) scale(.96);
+  }
+  .qes-stamp.show{ animation:qesIn .45s ease forwards; }
+  @keyframes qesIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+  .qes-stamp .qes-icon{ width:28px; height:28px; flex-shrink:0; }
+  .qes-stamp .qes-text b{ display:block; font-size:10.8px; color:var(--navy-deep); line-height:1.3; }
+  .qes-stamp .qes-text span{ display:block; font-size:9px; color:#5c6672; margin-top:1px; line-height:1.35; }
+
+  .doc-stamp{
+    position:absolute;
+    top:18px; right:18px;
+    display:none;
+    align-items:center; gap:6px;
+    background:#eef6f0;
+    border:1px solid #cfe7d8;
+    color:var(--good);
+    font-size:10px; font-weight:700;
+    padding:5px 9px 5px 7px;
+    border-radius:20px;
+    letter-spacing:.02em;
+  }
+  .doc-stamp.show{ display:flex; }
+
+  /* ---------- signature-pad speech bubble ---------- */
+  .pad-bubble{
+    position:fixed;
+    z-index:150;
+    width:236px;
+    opacity:0;
+    transform:translateY(6px) scale(.97);
+    pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .pad-bubble.show{ opacity:1; transform:translateY(0) scale(1); }
+  .pad-bubble .tail{
+    position:absolute;
+    left:34px; bottom:-9px;
+    width:18px; height:18px;
+    background:#232323;
+    transform:rotate(45deg);
+    border-radius:3px;
+  }
+  .pad-device{
+    background:linear-gradient(180deg,#2b2b2b,#161616);
+    border-radius:12px;
+    padding:9px 9px 7px;
+    box-shadow:0 14px 26px rgba(0,0,0,.35);
+    position:relative;
+  }
+  .pad-device .cam{
+    position:absolute; top:-16px; right:26px;
+    width:9px; height:26px;
+    border-radius:4px;
+    background:#1c1c1c;
+    box-shadow:0 0 0 1.5px #3a3a3a;
+  }
+  .pad-device .cam::after{
+    content:"";
+    position:absolute; left:50%; top:-10px;
+    width:1.5px; height:16px;
+    background:#3a3a3a;
+    transform:translateX(-50%) rotate(18deg);
+    border-radius:2px;
+  }
+  .pad-screen{
+    background:#dfe3e2;
+    border-radius:4px;
+    padding:9px 10px 8px;
+    min-height:78px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .pad-screen .pad-caption{
+    font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:#6d726f;
+    font-weight:700; margin-bottom:2px;
+  }
+  .pad-screen .pad-name{
+    font-size:12px; color:#25302c; font-weight:600; margin-bottom:3px;
+  }
+  .pad-screen .pad-sig-area{ height:28px; display:flex; align-items:flex-end; }
+  .pad-screen .sig-text{ font-size:19px; color:#1d2b26; }
+  .pad-brandstrip{
+    margin-top:7px;
+    text-align:center;
+    font-size:8px;
+    letter-spacing:.16em;
+    color:#8a8a86;
+    text-transform:uppercase;
+  }
+  .pad-status{
+    margin-top:6px;
+    display:flex; align-items:center; gap:6px;
+    font-size:10px; color:#cfcfcf;
+  }
+  .pad-status .led{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--navy);
+    box-shadow:0 0 6px var(--navy);
+    animation:blink 1s infinite ease-in-out;
+  }
+  .pad-status.done .led{ background:#3ecb72; box-shadow:0 0 6px #3ecb72; animation:none; }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  /* ---------- approval overlay (shown over the Word document) ---------- */
+  .approve-overlay{
+    position:fixed; inset:0;
+    background:rgba(20,26,26,.5);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:180;
+    padding:24px;
+  }
+  .approve-overlay.show{ display:flex; }
+  .approve-card{
+    width:620px; max-width:100%;
+    max-height:85%;
+    background:#fff;
+    border-radius:8px;
+    overflow:hidden;
+    box-shadow:0 40px 80px rgba(0,0,0,.45);
+    display:flex; flex-direction:column;
+    opacity:0; transform:translateY(10px) scale(.98);
+    animation:approveIn .28s ease forwards;
+  }
+  @keyframes approveIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+  .approve-head{
+    padding:16px 22px 14px;
+    border-bottom:1px solid var(--rule);
+    background:#f6faf9;
+  }
+  .approve-head .eyebrow{
+    font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--navy-deep); font-weight:700; margin-bottom:4px;
+  }
+  .approve-head b{ font-family:var(--serif); font-size:17px; color:var(--ink); }
+  .approve-head span{ display:block; font-size:11.5px; color:var(--ink-soft); margin-top:4px; }
+  .approve-doc{
+    padding:20px;
+    overflow-y:auto;
+    background:#c9c6bd;
+  }
+  .approve-page{
+    background:#fff;
+    width:100%;
+    max-width:460px;
+    margin:0 auto 20px;
+    padding:38px 44px;
+    box-shadow:0 4px 14px rgba(0,0,0,.16);
+    font-family:var(--serif);
+    font-size:12px;
+    line-height:1.7;
+    color:#242424;
+    position:relative;
+  }
+  .approve-page:last-child{ margin-bottom:0; }
+  .approve-page .ap-title{
+    text-align:center; font-weight:700; letter-spacing:.05em; font-size:13px;
+    margin-bottom:4px; text-transform:uppercase;
+  }
+  .approve-page .ap-subtitle{
+    text-align:center; font-size:10.5px; color:#6b6b6b; margin-bottom:22px;
+  }
+  .approve-page h5{
+    font-size:12px; font-weight:700; margin:0 0 8px; letter-spacing:.02em;
+  }
+  .approve-page p{ margin:0 0 10px; text-align:justify; }
+  .approve-page .ap-pagenum{
+    position:absolute; bottom:16px; left:0; right:0; text-align:center;
+    font-size:9.5px; color:#9a9a9a; font-family:var(--ui);
+  }
+  .approve-foot{
+    padding:13px 22px;
+    border-top:1px solid var(--rule);
+    display:flex; align-items:center; justify-content:space-between;
+    background:#f6faf9;
+  }
+  .approve-foot .hint{ font-size:11px; color:var(--ink-soft); }
+  .approve-btn{
+    background:var(--navy);
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    border:none;
+    padding:9px 20px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:background .15s, transform .12s;
+  }
+  .approve-btn:hover{ background:var(--navy-deep); transform:translateY(-1px); }
+
+  /* ---------- XSign pop-up window (XNP-style light UI) ---------- */
+  .xsign-window{
+    width:360px;
+    flex-basis:360px;
+    opacity:0;
+    pointer-events:none;
+    overflow:hidden;
+    background:#fff;
+    border-radius:9px;
+    box-shadow:0 26px 55px -14px rgba(15,50,50,.3), 0 2px 10px rgba(15,50,50,.12);
+    border:1px solid #cfe0df;
+    transform:translateY(6px) scale(.97);
+    transition:opacity .32s ease, transform .32s cubic-bezier(.2,.7,.2,1);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+    align-self:flex-start;
+  }
+  .xsign-window.show{ opacity:1; pointer-events:auto; transform:translateY(0) scale(1); }
+
+  .xnp-topline{ height:4px; background:linear-gradient(90deg,var(--navy-deep),var(--navy-slate)); }
+  .xnp-titlebar{
+    display:flex; align-items:center; gap:10px;
+    padding:11px 14px;
+    background:#fff;
+    color:var(--navy-deep);
+    border-bottom:1px solid #e1e5e9;
+  }
+  .xnp-titlebar .mark{
+    width:32px; height:32px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .xnp-titlebar .mark svg{ width:24px; height:24px; }
+  .xnp-titlebar .titles{ flex:1; line-height:1.2; white-space:nowrap; }
+  .xnp-titlebar .titles b{ font-size:13.5px; letter-spacing:.01em; color:var(--navy-deep); }
+  .xnp-titlebar .titles span{ display:block; font-size:9.5px; color:#7a8490; }
+  .xnp-close{
+    width:22px; height:22px; border-radius:5px;
+    display:flex; align-items:center; justify-content:center;
+    color:#8b95a0; cursor:pointer; font-size:14px;
+  }
+  .xnp-close:hover{ background:#eef1f4; }
+
+  .xnp-steps{
+    display:flex;
+    padding:12px 12px 10px;
+    gap:4px;
+    background:#f4f8f8;
+    border-bottom:1px solid #e2ebea;
+  }
+  .xnp-step{
+    flex:1;
+    text-align:center;
+    padding:6px 2px 7px;
+    border-radius:5px;
+    background:#e9eeed;
+    font-size:8.4px;
+    line-height:1.25;
+    color:#7c8886;
+    position:relative;
+    white-space:nowrap;
+  }
+  .xnp-step b{ display:block; font-size:11.5px; margin-bottom:2px; color:#5c6866; font-family:var(--serif); }
+  .xnp-step.active{ background:var(--navy-pale); color:var(--navy-deep); }
+  .xnp-step.active b{ color:var(--navy); }
+  .xnp-step.done{ background:#e4f3e9; color:#3f8e5f; }
+  .xnp-step.done b{ color:var(--good); }
+
+  .xnp-body{
+    flex:1;
+    overflow-y:auto;
+    padding:14px 15px 8px;
+    max-height:56vh;
+  }
+  .xnp-section-label{
+    font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:#8b938f; margin:4px 0 8px; font-weight:700;
+  }
+
+  .signer-row{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid #eef1f0;
+    font-size:12.5px;
+  }
+  .signer-row .idx{
+    width:21px; height:21px; border-radius:50%;
+    background:#e9eeed; color:#8b938f;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10.5px; font-weight:700; flex-shrink:0;
+  }
+  .signer-row.active .idx{ background:var(--navy); color:#fff; }
+  .signer-row.done .idx{ background:#dcf1e2; color:#2f7a4c; }
+  .signer-row .who b{ display:block; color:#28312f; }
+  .signer-row .state{ margin-left:auto; font-size:10.5px; color:#8b938f; }
+  .signer-row.active .state{ color:var(--navy-deep); font-weight:600; }
+  .signer-row.done .state{ color:#2f7a4c; }
+
+  .xnp-note{
+    margin-top:2px; font-size:10.5px; color:#8b938f; line-height:1.4;
+  }
+
+  .log{
+    margin-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .log-entry{
+    display:flex;
+    gap:9px;
+    align-items:flex-start;
+    font-size:11.8px;
+    color:#3d4645;
+    opacity:0;
+    transform:translateY(4px);
+    animation:logIn .3s forwards;
+  }
+  @keyframes logIn{ to{ opacity:1; transform:translateY(0);} }
+  .log-entry .ts{
+    font-family:var(--mono); font-size:9.5px; color:#a3aba9; padding-top:2px; flex-shrink:0; width:38px;
+  }
+  .log-entry .ico{
+    width:14px; height:14px; flex-shrink:0; margin-top:2px;
+    border-radius:50%; border:1.6px solid #c7d0cf; position:relative;
+  }
+  .log-entry.spin .ico{ border-top-color:var(--navy); animation:spin .8s linear infinite; }
+  .log-entry.ok .ico{ background:#dcf1e2; border-color:#dcf1e2; }
+  .log-entry.ok .ico::after{
+    content:""; position:absolute; left:3px; top:0.5px; width:4px; height:7px;
+    border-right:1.6px solid #2f7a4c; border-bottom:1.6px solid #2f7a4c; transform:rotate(45deg);
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .log-entry.cancel .ico{ background:#fdecec; border-color:#fdecec; }
+  .log-entry.cancel .ico::before, .log-entry.cancel .ico::after{
+    content:""; position:absolute; left:6px; top:2.5px; width:1.6px; height:8px;
+    background:#c23b3b; border-radius:1px;
+  }
+  .log-entry.cancel .ico::before{ transform:rotate(45deg); }
+  .log-entry.cancel .ico::after{ transform:rotate(-45deg); }
+  .log-entry.cancel .msg b{ color:#a52f2f; }
+  .log-entry .msg b{ color:#1c2423; font-weight:600; }
+  .log-entry .msg .fine{ display:block; color:#8b938f; font-size:10.3px; margin-top:1px; }
+
+  /* ---------- PIN entry overlay (notary signature card) ---------- */
+  .pin-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,16,20,.55);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:200;
+    padding:20px;
+  }
+  .pin-overlay.show{ display:flex; }
+  .pin-modal{
+    width:300px; max-width:100%;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 40px 80px rgba(0,0,0,.45);
+    padding:20px 22px 22px;
+    opacity:0; transform:translateY(10px) scale(.97);
+    animation:approveIn .26s ease forwards;
+  }
+  .pin-modal .pin-eyebrow{
+    font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--navy-deep); font-weight:700; margin-bottom:3px; text-align:center;
+  }
+  .pin-modal .pin-title{
+    font-size:13px; font-weight:700; color:#20282e; margin-bottom:3px; text-align:center;
+  }
+  .pin-modal .pin-sub{
+    font-size:10.8px; color:#6b7680; margin-bottom:14px; text-align:center; line-height:1.4;
+  }
+  .sig-format-field{ text-align:left; margin-bottom:14px; }
+  .sig-format-field label{
+    display:block; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase;
+    color:#8b938f; font-weight:700; margin-bottom:5px;
+  }
+  .sig-format-field select{
+    width:100%;
+    font-family:var(--ui);
+    font-size:12px;
+    color:#20282e;
+    background:#f6f7f9;
+    border:1px solid #d7dde3;
+    border-radius:6px;
+    padding:8px 10px;
+    cursor:pointer;
+  }
+  .sig-format-field select:focus{ outline:2px solid var(--navy); outline-offset:1px; }
+  .pin-display{ display:flex; gap:9px; justify-content:center; margin-bottom:14px; }
+  .pin-dot{
+    width:12px; height:12px; border-radius:50%;
+    border:1.6px solid #b8c2ca; background:#fff;
+    transition:background .15s, border-color .15s;
+  }
+  .pin-dot.filled{ background:var(--navy); border-color:var(--navy); }
+  .pin-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .pin-key{
+    background:#f6f7f9; border:1px solid #d7dde3; border-radius:7px;
+    padding:12px 0; text-align:center; font-size:15px; font-weight:600; color:#2c3736;
+    transition:background .12s, color .12s, transform .1s;
+    cursor:pointer; user-select:none;
+  }
+  .pin-key:hover{ background:#eef1f4; }
+  .pin-key.ok{ grid-column:span 3; background:var(--navy); color:#fff; font-size:12px; letter-spacing:.03em; border-color:var(--navy); }
+  .pin-key.ok:hover{ background:var(--navy-deep); }
+  .pin-key.ok.disabled{ background:#e4e8ec; color:#9aa3ac; border-color:#d7dde3; cursor:default; }
+  .pin-key.ok.disabled:hover{ background:#e4e8ec; }
+  .pin-key.ok.disabled.pressed{ background:#e4e8ec; }
+  .pin-key.pressed{ background:var(--navy); color:#fff; transform:scale(.95); border-color:var(--navy); }
+  .pin-key.ok.pressed{ background:var(--navy-deep); }
+
+  .result-card{
+    margin-top:14px;
+    background:#f4f8f8;
+    border:1px solid #dceae9;
+    border-radius:8px;
+    padding:13px 14px;
+  }
+  .result-card .rc-title{
+    font-family:var(--serif);
+    font-size:14px; color:var(--navy-deep); margin-bottom:9px;
+  }
+  .result-row{
+    display:flex; gap:8px; align-items:flex-start;
+    font-size:11.3px; color:#3d4645; padding:5px 0;
+    border-top:1px solid #e2ebea;
+  }
+  .result-row:first-of-type{ border-top:none; }
+  .result-row b{ color:#1c2423; }
+  .result-row .chk{ color:#2f7a4c; flex-shrink:0; }
+
+  .done-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,16,20,.55);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:210;
+    padding:20px;
+  }
+  .done-overlay.show{ display:flex; }
+  .done-modal{
+    width:340px; max-width:100%;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 40px 80px rgba(0,0,0,.45);
+    padding:26px 26px 22px;
+    text-align:center;
+    opacity:0; transform:translateY(10px) scale(.97);
+    animation:approveIn .26s ease forwards;
+  }
+  .done-icon{ width:44px; height:44px; margin:0 auto 12px; }
+  .done-title{ font-size:15px; font-weight:700; color:#1c2423; margin-bottom:8px; font-family:var(--serif); }
+  .done-text{ font-size:12px; color:#4a5250; line-height:1.55; margin-bottom:18px; }
+  .done-btn{
+    background:var(--navy);
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    border:none;
+    padding:9px 22px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .done-btn:hover{ background:var(--navy-deep); }
+
+  .confirm-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,16,20,.55);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:220;
+    padding:20px;
+  }
+  .confirm-overlay.show{ display:flex; }
+  .confirm-modal{
+    width:360px; max-width:100%;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 40px 80px rgba(0,0,0,.45);
+    padding:26px 26px 22px;
+    text-align:center;
+    opacity:0; transform:translateY(10px) scale(.97);
+    animation:approveIn .26s ease forwards;
+  }
+  .confirm-icon{ width:44px; height:44px; margin:0 auto 12px; }
+  .confirm-title{ font-size:15px; font-weight:700; color:#1c2423; margin-bottom:8px; font-family:var(--serif); }
+  .confirm-text{ font-size:12px; color:#4a5250; line-height:1.55; margin-bottom:18px; }
+  .confirm-actions{ display:flex; flex-direction:column; gap:9px; }
+  .confirm-btn{
+    font-size:13px; font-weight:700;
+    padding:10px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:background .15s;
+  }
+  .confirm-btn.primary{ background:var(--navy); color:#fff; }
+  .confirm-btn.primary:hover{ background:var(--navy-deep); }
+  .confirm-btn.ghost{ background:#fff; color:#3d4645; border-color:#d7dde3; }
+  .confirm-btn.ghost:hover{ background:#f4f6f7; }
+  .confirm-btn.danger{ background:#c23b3b; color:#fff; }
+  .confirm-btn.danger:hover{ background:#a52f2f; }
+
+  .notar-overlay{
+    position:fixed; inset:0;
+    background:rgba(15,25,40,.45);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:190;
+    padding:20px;
+  }
+  .notar-overlay.show{ display:flex; }
+  .notar-modal{
+    width:340px; max-width:100%;
+    background:#fff;
+    border-radius:8px;
+    overflow:hidden;
+    box-shadow:0 40px 80px rgba(0,0,0,.4);
+    opacity:0; transform:translateY(8px) scale(.97);
+    animation:approveIn .22s ease forwards;
+  }
+  .notar-head{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px;
+    background:var(--office-blue-dark);
+    color:#fff;
+  }
+  .notar-mark{
+    width:22px; height:22px; border-radius:4px;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-weight:700; font-size:13px; color:var(--office-blue);
+    flex-shrink:0;
+  }
+  .notar-titles{ line-height:1.2; }
+  .notar-titles b{ display:block; font-size:12.5px; }
+  .notar-titles span{ display:block; font-size:9.5px; color:#cfe0f2; margin-top:1px; }
+  .notar-body{
+    display:flex; align-items:center; gap:13px;
+    padding:20px 18px;
+  }
+  .notar-spinner{
+    width:26px; height:26px; flex-shrink:0;
+    border:3px solid #dbe6f2;
+    border-top-color:var(--office-blue);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+  .notar-text b{ display:block; font-size:12.5px; color:#1b2733; }
+  .notar-text span{ display:block; font-size:10.8px; color:#6b7680; margin-top:3px; line-height:1.4; }
+
+  /* Nicht-blockierende Variante: Dokument bleibt sichtbar */
+  .notar-overlay.inline{
+    background:transparent;
+    align-items:flex-end;
+    justify-content:flex-start;
+    padding:26px;
+    pointer-events:none;
+  }
+  .notar-overlay.inline .notar-modal{
+    width:322px;
+    box-shadow:0 24px 50px -12px rgba(5,8,14,.55);
+  }
+
+  .xnp-footer{
+    padding:10px 15px 13px;
+    border-top:1px solid #e2ebea;
+    font-size:9.5px;
+    color:#9aa3a0;
+    display:flex; justify-content:space-between;
+  }
+
+  /* ---------- mode chooser ---------- */
+  .chooser{
+    position:fixed; inset:0;
+    background:linear-gradient(160deg,#1a1f27 0%, #0d1116 60%, #05070a 100%);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    z-index:400;
+    padding:30px;
+  }
+  .chooser.hide{ display:none; }
+  .chooser .ch-eyebrow{
+    font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    color:#8f9099; font-weight:700; margin-bottom:12px;
+  }
+  .chooser h1{
+    font-family:var(--serif);
+    font-size:29px; color:#fff; margin:0 0 12px; text-align:center; font-weight:600; max-width:760px; line-height:1.3;
+  }
+  .chooser .ch-sub{
+    font-size:13px; color:#9ba0aa; margin-bottom:34px; text-align:center; max-width:660px; line-height:1.65;
+  }
+  .ch-cards{ display:flex; gap:22px; flex-wrap:wrap; justify-content:center; }
+  .ch-card{
+    width:342px;
+    background:#fff;
+    border-radius:12px;
+    padding:0 0 22px;
+    overflow:hidden;
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,.08);
+    transition:transform .18s ease, box-shadow .18s ease;
+    box-shadow:0 18px 40px -14px rgba(0,0,0,.6);
+    text-align:left;
+  }
+  .ch-card:hover{ transform:translateY(-4px); box-shadow:0 28px 60px -16px rgba(0,0,0,.7); }
+  .ch-visual{
+    height:132px;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .ch-visual.classic{ background:linear-gradient(150deg,#2b579a,#1c3f73); }
+  .ch-visual.standalone{ background:linear-gradient(150deg,#1c2739,#0e1520); }
+  .ch-mini{
+    width:172px; height:96px; border-radius:6px;
+    background:#fff; box-shadow:0 8px 18px rgba(0,0,0,.3);
+    overflow:hidden;
+  }
+  .ch-mini .cm-bar{ height:14px; background:#1c3f73; }
+  .ch-mini .cm-bar.mac{ background:#e9e7e3; display:flex; align-items:center; gap:3px; padding-left:6px; }
+  .ch-mini .cm-bar.mac i{ width:5px; height:5px; border-radius:50%; background:#c9c6c1; display:block; }
+  .ch-mini .cm-ribbon{ height:13px; background:#f3f2f1; border-bottom:1px solid #e1dfdd; }
+  .ch-mini .cm-body{ padding:8px 10px; }
+  .ch-mini .cm-line{ height:3px; border-radius:2px; background:#dcdad5; margin-bottom:4px; }
+  .ch-mini .cm-line.s{ width:60%; }
+  .ch-mini .cm-line.g{ background:#cfe0f8; width:42%; }
+  .ch-body{ padding:18px 20px 0; }
+  .ch-body .ch-kicker{
+    font-size:9.5px; letter-spacing:.11em; text-transform:uppercase; font-weight:700;
+    color:#98a0ab; margin-bottom:5px;
+  }
+  .ch-body h2{ font-family:var(--serif); font-size:17px; margin:0 0 8px; color:#161b22; font-weight:600; }
+  .ch-body p{ font-size:11.8px; color:#5c6672; line-height:1.55; margin:0 0 12px; }
+  .ch-tags{ display:flex; flex-wrap:wrap; gap:6px; }
+  .ch-tag{
+    font-size:9.5px; padding:4px 9px; border-radius:20px; line-height:1.35;
+    background:#f1f3f5; color:#5c6672; font-weight:600;
+  }
+  .ch-tag.gold{ background:var(--nx-blue-soft); color:var(--nx-blue-dk); }
+  .chooser .ch-foot{ margin-top:28px; font-size:10.5px; color:#71767f; }
+
+  .mode-switch{
+    font-family:var(--ui); font-size:12.5px; font-weight:600;
+    padding:7px 13px; border-radius:5px;
+    border:1px solid #cac7bd; background:#fbfaf8; color:#3a392f; cursor:pointer;
+  }
+  .mode-switch:hover{ background:#fff; border-color:#b3af9f; }
+
+  /* ---------- macOS desktop ---------- */
+  /* ---------- iPad device (Hochformat) ---------- */
+  .ipad-device{
+    display:none;
+    position:relative;
+    width:904px;
+    padding:20px;
+    border-radius:38px;
+    background:linear-gradient(160deg,#3a3f47 0%, #23272d 30%, #16191d 70%, #2b3037 100%);
+    box-shadow:
+      0 40px 80px -24px rgba(8,10,14,.7),
+      0 2px 6px rgba(8,10,14,.5),
+      inset 0 0 0 1.5px rgba(255,255,255,.09);
+  }
+  .ipad-device.show{ display:block; }
+
+  /* Kamera oben mittig (Hochformat) */
+  .ipad-cam{
+    position:absolute; top:9px; left:50%; transform:translateX(-50%);
+    width:7px; height:7px; border-radius:50%;
+    background:#0d0f12;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.14), 0 0 3px rgba(90,140,200,.35);
+  }
+  /* Tasten am Gehäuserand */
+  .ipad-btn{
+    position:absolute; background:#2a2f36; border-radius:2px;
+  }
+  .ipad-btn.power{ top:150px; right:-3px; width:4px; height:74px; }
+  .ipad-btn.vol-a{ top:64px; right:-3px; width:4px; height:34px; }
+  .ipad-btn.vol-b{ top:24px; right:-3px; width:4px; height:34px; }
+
+  .ipad-screen{
+    position:relative;
+    width:864px;
+    height:1152px;
+    border-radius:20px;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 95% at 22% 0%, #4a5570 0%, #2c3448 44%, #171c28 100%);
+    isolation:isolate;
+  }
+  .ipad-screen::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(58% 44% at 80% 86%, rgba(59,130,246,.18), transparent 70%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* iPadOS Statusleiste */
+  .ios-statusbar{
+    position:absolute; top:0; left:0; right:0; height:26px;
+    display:flex; align-items:center;
+    padding:0 22px;
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.01em;
+    z-index:6;
+    text-shadow:0 1px 2px rgba(0,0,0,.28);
+  }
+  .ios-statusbar .st-left{ display:flex; align-items:center; gap:7px; }
+  .ios-statusbar .st-right{ margin-left:auto; display:flex; align-items:center; gap:7px; }
+  .ios-statusbar svg{ width:15px; height:15px; display:block; }
+  .ios-battery{
+    width:24px; height:11.5px; border-radius:3px;
+    border:1.3px solid rgba(255,255,255,.65);
+    position:relative; display:flex; align-items:center; padding:1.4px;
+  }
+  .ios-battery::after{
+    content:""; position:absolute; right:-3px; top:50%; transform:translateY(-50%);
+    width:1.6px; height:4px; border-radius:0 1px 1px 0; background:rgba(255,255,255,.55);
+  }
+  .ios-battery i{ display:block; height:100%; width:74%; border-radius:1.5px; background:#fff; }
+
+  .ipad-windows{
+    position:absolute;
+    top:26px; left:0; right:0; bottom:0;
+    display:flex; justify-content:center;
+    padding:16px 16px 0;
+    z-index:1;
+  }
+
+  /* iPadOS Dock */
+  .ios-dock{
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:flex-end; gap:12px;
+    padding:9px 13px;
+    background:rgba(232,236,244,.26);
+    backdrop-filter:blur(24px);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:22px;
+    z-index:6;
+  }
+  .dock-app{
+    width:44px; height:44px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:700; color:#fff;
+    box-shadow:0 3px 9px rgba(0,0,0,.3);
+    position:relative;
+  }
+  .dock-app.active::after{
+    content:""; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+    width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.85);
+  }
+  .dock-app svg{ width:22px; height:22px; }
+  .dock-sep{
+    width:1px; height:34px; align-self:center;
+    background:rgba(255,255,255,.28);
+    margin:0 2px;
+  }
+
+  /* Home-Indikator */
+  .ios-home{
+    position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
+    width:150px; height:4px; border-radius:3px;
+    background:rgba(255,255,255,.6);
+    z-index:7;
+  }
+
+  /* ---------- NOTARIUS application window ---------- */
+  .nx-window{
+    width:832px;
+    flex-shrink:0;
+    background:var(--nx-surface);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -16px rgba(5,8,14,.62), 0 2px 8px rgba(5,8,14,.4);
+    display:flex; flex-direction:column;
+    height:1032px;
+  }
+  .nx-titlebar{
+    height:42px;
+    background:var(--nx-ink);
+    display:flex; align-items:center; gap:12px;
+    padding:0 14px;
+    flex-shrink:0;
+    position:relative;
+  }
+  .nx-pages{
+    position:relative;
+    width:560px;
+    align-self:stretch;
+    overflow-y:auto;
+    padding-bottom:78px;
+  }
+  .nx-pages::-webkit-scrollbar{ width:8px; }
+  .nx-pages::-webkit-scrollbar-thumb{ background:#cfccc6; border-radius:4px; }
+  .xsign-slot{ flex-shrink:0; }
+  /* Im Hochformat erscheint XSign als Slide-Over-Fenster über NOTARIUS */
+  .ipad-screen .xsign-slot{
+    position:absolute;
+    top:56px; right:30px;
+    z-index:8;
+  }
+  .ipad-device .xsign-window{
+    box-shadow:0 34px 70px -12px rgba(5,8,14,.72), 0 3px 10px rgba(5,8,14,.5);
+    max-height:940px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.16);
+  }
+  .ipad-device .xnp-body{ max-height:640px; }
+  .traffic{ display:flex; gap:7px; }
+  .traffic i{ width:11px; height:11px; border-radius:50%; display:block; }
+  .traffic .r{ background:#ff5f57; }
+  .traffic .y{ background:#febc2e; }
+  .traffic .g{ background:#28c840; }
+  .nx-wordmark{
+    display:flex; align-items:center; gap:9px;
+    color:#fff;
+  }
+  .nx-wordmark .nx-glyph{
+    width:22px; height:22px; flex-shrink:0; display:block;
+  }
+  .nx-wordmark .nx-glyph svg{ width:100%; height:100%; display:block; }
+  .nx-wordmark b{
+    font-family:var(--nx-ui);
+    font-size:13px; letter-spacing:.19em; font-weight:800;
+    text-transform:uppercase;
+  }
+  .nx-titlebar .nx-doc{
+    margin-left:auto; margin-right:auto;
+    position:absolute; left:50%; transform:translateX(-50%);
+    font-size:11.5px; color:#93a1b5; font-family:var(--nx-ui);
+  }
+  .nx-titlebar .nx-right{ margin-left:auto; display:flex; align-items:center; gap:9px; }
+  .nx-avatar{
+    width:24px; height:24px; border-radius:50%;
+    background:#2b3a52;
+    color:#dbe4f0; font-size:9.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--nx-ui);
+    border:1px solid #3a4a63;
+  }
+
+  .nx-context{
+    background:#fff;
+    border-bottom:1px solid var(--nx-line);
+    padding:14px 22px 13px;
+    display:flex; align-items:center; gap:18px;
+    flex-shrink:0;
+    font-family:var(--nx-ui);
+  }
+  .nx-mode-badge{
+    display:inline-flex; align-items:center; gap:7px;
+    background:var(--nx-blue-soft);
+    color:var(--nx-blue-dk);
+    font-size:9.5px; font-weight:800; letter-spacing:.13em; text-transform:uppercase;
+    padding:6px 13px; border-radius:20px;
+    border:1px solid #cfe0f8;
+    flex-shrink:0;
+  }
+  .nx-mode-badge .pulse{
+    width:5px; height:5px; border-radius:50%; background:var(--nx-blue);
+    animation:blink 1.6s infinite ease-in-out;
+  }
+  .nx-context .nx-case b{
+    display:block; font-family:var(--nx-ui); font-size:15px; color:var(--nx-ink);
+    line-height:1.25; font-weight:800; letter-spacing:-.01em;
+  }
+  .nx-context .nx-case span{ display:block; font-size:10.5px; color:var(--nx-muted); margin-top:2px; }
+  .nx-parties{ margin-left:auto; display:flex; align-items:center; gap:7px; }
+  .nx-chip{
+    display:flex; align-items:center; gap:6px;
+    background:var(--nx-surface);
+    border:1px solid var(--nx-line);
+    border-radius:20px;
+    padding:4px 11px 4px 4px;
+    font-size:10.8px; color:var(--nx-body); font-family:var(--nx-ui);
+  }
+  .nx-chip i{
+    width:19px; height:19px; border-radius:50%;
+    background:var(--nx-ink-2); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:8.5px; font-weight:700; font-style:normal;
+  }
+  .nx-chip.done i{ background:#2f7a4c; }
+
+  .nx-reader{
+    flex:1;
+    position:relative;
+    background:#e9e7e2;
+    overflow:hidden;
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:24px 0 0;
+  }
+  .nx-page{
+    width:520px;
+    background:#fff;
+    box-shadow:0 10px 30px rgba(20,20,15,.16);
+    padding:46px 54px 40px;
+    font-family:var(--serif);
+    font-size:12.5px;
+    line-height:1.75;
+    color:#232323;
+    position:relative;
+    display:none;
+    min-height:560px;
+  }
+  .nx-page.active{ display:block; animation:pageIn .25s ease; }
+  @keyframes pageIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+  .nx-page .np-title{
+    text-align:center; font-weight:700; letter-spacing:.06em; font-size:14px;
+    margin-bottom:4px; text-transform:uppercase;
+  }
+  .nx-page .np-sub{ text-align:center; font-size:10.5px; color:#6b6b6b; margin-bottom:24px; }
+  .nx-page h5{ font-size:12.5px; font-weight:700; margin:0 0 9px; }
+  .nx-page p{ margin:0 0 11px; text-align:justify; }
+  .nx-page .np-num{
+    position:absolute; bottom:16px; left:0; right:0; text-align:center;
+    font-size:9.5px; color:#a5a5a5; font-family:var(--ui);
+  }
+
+  .nx-pager{
+    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:4px;
+    background:rgba(255,255,255,.94);
+    border:1px solid var(--nx-line);
+    border-radius:22px;
+    padding:5px 7px;
+    box-shadow:0 6px 18px rgba(20,20,15,.14);
+    z-index:4;
+  }
+  .nx-pager button{
+    width:26px; height:26px; border-radius:50%;
+    border:none; background:transparent; cursor:pointer;
+    color:var(--nx-ink); font-size:13px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .nx-pager button:hover:not(:disabled){ background:var(--nx-surface); }
+  .nx-pager button:disabled{ opacity:.28; cursor:default; }
+  .nx-pager .np-dots{ display:flex; gap:5px; padding:0 5px; }
+  .nx-pager .np-dot{
+    width:6px; height:6px; border-radius:50%; background:#d3d0ca; cursor:pointer;
+    transition:background .15s, transform .15s;
+  }
+  .nx-pager .np-dot.on{ background:var(--nx-blue); transform:scale(1.25); }
+
+  .nx-fab{
+    position:absolute; right:22px; bottom:22px;
+    display:none;
+    align-items:center; gap:10px;
+    background:var(--nx-ink);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:30px;
+    padding:11px 20px 11px 13px;
+    cursor:pointer;
+    box-shadow:0 14px 30px -8px rgba(8,10,16,.6);
+    z-index:5;
+    animation:fabIn .34s cubic-bezier(.2,.8,.3,1);
+  }
+  .nx-fab.show{ display:flex; }
+  @keyframes fabIn{ from{ opacity:0; transform:translateY(12px) scale(.94);} to{ opacity:1; transform:translateY(0) scale(1);} }
+  .nx-fab:hover{ background:var(--nx-ink-2); }
+  .nx-fab.busy{ cursor:progress; opacity:.85; }
+  .nx-fab .fab-mark{
+    width:30px; height:30px; border-radius:8px;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .nx-fab .fab-mark svg{ width:20px; height:20px; }
+  .nx-fab .fab-text{ text-align:left; line-height:1.2; font-family:var(--nx-ui); }
+  .nx-fab .fab-text b{ display:block; font-size:12.5px; letter-spacing:.02em; }
+  .nx-fab .fab-text span{ display:block; font-size:9.5px; color:#a8b0bd; }
+
+  .nf-hidden{ display:none !important; }
+  .nf-reveal{ animation:fieldIn .55s cubic-bezier(.2,.75,.3,1) both; }
+  @keyframes fieldIn{
+    from{ opacity:0; transform:translateY(10px) scale(.985); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  /* Vor der Finalisierung ist die Seite an dieser Stelle schlicht weiß.
+     Der Platzhalter hält nur den Raum, damit das Layout nicht springt. */
+  .nx-placeholder{
+    margin-top:20px;
+    display:flex; flex-direction:column; gap:14px;
+    visibility:hidden;
+  }
+  .nx-placeholder > span{
+    display:block; height:36px;
+  }
+  .nx-placeholder.fade{ animation:phOut .3s ease both; }
+  @keyframes phOut{ to{ opacity:0; } }
+
+  /* ---------- Dialoge innerhalb des iPad-Bildschirms (iOS-Optik) ---------- */
+  .ipad-screen .approve-overlay,
+  .ipad-screen .notar-overlay,
+  .ipad-screen .pin-overlay,
+  .ipad-screen .done-overlay,
+  .ipad-screen .confirm-overlay,
+  .ipad-screen .sigmode-overlay{
+    position:absolute;
+    z-index:60;
+  }
+  .ipad-screen .notar-overlay{ z-index:55; }
+
+  .ipad-screen .approve-card,
+  .ipad-screen .pin-modal,
+  .ipad-screen .done-modal,
+  .ipad-screen .confirm-modal,
+  .ipad-screen .notar-modal,
+  .ipad-screen .sigmode-modal{
+    border-radius:16px;
+    font-family:var(--ios-ui);
+    box-shadow:0 30px 60px rgba(0,0,0,.4);
+  }
+  .ipad-screen .approve-btn,
+  .ipad-screen .done-btn,
+  .ipad-screen .confirm-btn,
+  .ipad-screen .sig-format-field select{
+    border-radius:11px;
+    font-family:var(--ios-ui);
+    font-weight:600;
+    letter-spacing:-.01em;
+  }
+  .ipad-screen .approve-btn,
+  .ipad-screen .done-btn,
+  .ipad-screen .confirm-btn.primary{
+    background:var(--ios-blue);
+    border-color:var(--ios-blue);
+  }
+  .ipad-screen .approve-btn:hover,
+  .ipad-screen .done-btn:hover,
+  .ipad-screen .confirm-btn.primary:hover{ background:var(--ios-blue-dk); }
+  .ipad-screen .confirm-btn.ghost{ background:#f2f2f7; border-color:#e2e2e8; color:#1c1c1e; }
+  .ipad-screen .pin-key{
+    border-radius:13px;
+    background:#f2f2f7;
+    border-color:#e4e4ea;
+    font-family:var(--ios-ui);
+  }
+  .ipad-screen .pin-key.ok{ background:var(--ios-blue); border-color:var(--ios-blue); }
+  .ipad-screen .pin-key.pressed{ background:var(--ios-blue); border-color:var(--ios-blue); }
+  .ipad-screen .pin-dot.filled{ background:var(--ios-blue); border-color:var(--ios-blue); }
+  .ipad-screen .pin-modal .pin-eyebrow,
+  .ipad-screen .confirm-icon + .confirm-title{ letter-spacing:-.01em; }
+
+  /* ---------- Auswahl des Unterschriftenwegs (nur Standalone) ---------- */
+  .sigmode-overlay{
+    position:fixed; inset:0;
+    background:rgba(10,16,20,.55);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:225;
+    padding:20px;
+  }
+  .sigmode-overlay.show{ display:flex; }
+  .sigmode-modal{
+    width:468px; max-width:100%;
+    background:#fff;
+    border-radius:16px;
+    box-shadow:0 40px 80px rgba(0,0,0,.45);
+    padding:24px 24px 20px;
+    font-family:var(--ios-ui);
+    opacity:0; transform:translateY(10px) scale(.97);
+    animation:approveIn .26s ease forwards;
+  }
+  .sigmode-modal .sm-title{
+    font-size:16px; font-weight:700; color:#1c1c1e; text-align:center;
+    letter-spacing:-.015em; margin-bottom:5px;
+  }
+  .sigmode-modal .sm-sub{
+    font-size:12px; color:#6b7280; text-align:center; line-height:1.5; margin-bottom:18px;
+  }
+  .sm-options{ display:flex; flex-direction:column; gap:11px; }
+  .sm-option{
+    display:flex; align-items:center; gap:13px;
+    border:1.5px solid #e4e4ea;
+    background:#fff;
+    border-radius:13px;
+    padding:14px 15px;
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .15s, background .15s, transform .12s;
+  }
+  .sm-option:hover{ border-color:var(--ios-blue); background:#f7faff; transform:translateY(-1px); }
+  .sm-icon{
+    width:46px; height:46px; border-radius:11px;
+    background:#f2f2f7;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .sm-icon svg{ width:26px; height:26px; }
+  .sm-body{ flex:1; }
+  .sm-body b{
+    display:block; font-size:13.5px; color:#1c1c1e; font-weight:650; letter-spacing:-.01em;
+  }
+  .sm-body span{ display:block; font-size:11.3px; color:#6b7280; margin-top:2px; line-height:1.45; }
+  .sm-body span.sm-detected{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:7px;
+    background:#e8f6ed; color:#1c7a45;
+    font-size:10px; font-weight:700; letter-spacing:.01em;
+    line-height:1;
+    padding:4px 10px 4px 8px; border-radius:20px;
+    white-space:nowrap;
+  }
+  .sm-detected .led{
+    width:6px; height:6px; border-radius:50%; background:#2fb463;
+    box-shadow:0 0 5px #2fb463;
+    flex-shrink:0;
+    animation:blink 1.5s infinite ease-in-out;
+  }
+  .sm-chev{ color:#c2c6cc; font-size:19px; flex-shrink:0; }
+
+  /* ---------- Unterschrift direkt auf dem iPad ---------- */
+  .ipadsign-overlay{
+    position:absolute; inset:0;
+    background:rgba(12,16,22,.62);
+    backdrop-filter:blur(3px);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:70;
+    padding:26px;
+  }
+  .ipadsign-overlay.show{ display:flex; }
+  .ipadsign-sheet{
+    width:100%; max-width:940px;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 40px 90px rgba(0,0,0,.5);
+    padding:22px 26px 24px;
+    font-family:var(--ios-ui);
+    opacity:0; transform:translateY(14px) scale(.98);
+    animation:approveIn .3s ease forwards;
+  }
+  .ipadsign-sheet .is-head{ text-align:center; margin-bottom:14px; }
+  .ipadsign-sheet .is-eyebrow{
+    font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--ios-blue); font-weight:700; margin-bottom:5px;
+  }
+  .ipadsign-sheet .is-name{
+    font-size:20px; font-weight:700; color:#1c1c1e; letter-spacing:-.02em;
+  }
+  .ipadsign-sheet .is-hint{ font-size:11.5px; color:#6b7280; margin-top:4px; }
+  .is-canvas{
+    position:relative;
+    height:190px;
+    border:1.5px dashed #d3d6dc;
+    border-radius:14px;
+    background:#fbfbfd;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .is-canvas .is-baseline{
+    position:absolute; left:44px; right:44px; bottom:56px;
+    border-bottom:1.5px solid #dfe2e7;
+  }
+  .is-canvas .is-x{
+    position:absolute; left:44px; bottom:60px;
+    font-size:19px; color:#c2c6cc; font-weight:700;
+  }
+  .is-canvas .sig-text{
+    position:relative;
+    font-size:62px;
+    padding-bottom:0;
+    margin-bottom:34px;
+    color:#111827;
+  }
+  .is-canvas .sig-text.reveal{ animation:revealSig 2.6s cubic-bezier(.25,.75,.35,1) forwards; }
+  .is-stylus{
+    position:absolute;
+    width:15px; height:104px;
+    right:52px; bottom:44px;
+    transform:rotate(24deg);
+    transform-origin:bottom center;
+    opacity:0;
+    transition:opacity .3s;
+    pointer-events:none;
+  }
+  .is-stylus.show{ opacity:1; }
+  .is-foot{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:15px;
+  }
+  .is-foot .is-status{
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; color:#6b7280;
+  }
+  .is-foot .is-status .led{
+    width:7px; height:7px; border-radius:50%; background:var(--ios-blue);
+    box-shadow:0 0 6px var(--ios-blue);
+    animation:blink 1.1s infinite ease-in-out;
+  }
+  .is-foot .is-status.done .led{ background:#2fb463; box-shadow:0 0 6px #2fb463; animation:none; }
+  .is-badge{
+    font-size:11px; color:#8a9099;
+    display:flex; align-items:center; gap:6px;
+  }
+
+  .sm-persons{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  .sm-person{
+    display:flex; align-items:center; gap:11px;
+    background:#f7f8fa;
+    border:1px solid #e9eaee;
+    border-radius:12px;
+    padding:9px 11px;
+  }
+  .sm-avatar{
+    width:28px; height:28px; border-radius:50%;
+    background:var(--nx-ink-2); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; flex-shrink:0;
+  }
+  .sm-pname{ font-size:13px; font-weight:600; color:#1c1c1e; flex:1; letter-spacing:-.01em; }
+  .sm-seg{
+    display:flex; background:#e7e8ec; border-radius:9px; padding:2px; gap:2px; flex-shrink:0;
+  }
+  .sm-seg-btn{
+    border:none; background:transparent; cursor:pointer;
+    font-family:inherit; font-size:11px; font-weight:650; color:#5c6672;
+    padding:6px 13px; border-radius:7px;
+    transition:background .14s, color .14s, box-shadow .14s;
+  }
+  .sm-seg-btn:hover{ color:#1c1c1e; }
+  .sm-seg-btn.active{
+    background:#fff; color:var(--ios-blue);
+    box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }
+  .sm-legend{
+    border-top:1px solid #eceef1;
+    padding-top:12px; margin-bottom:15px;
+    display:flex; flex-direction:column; gap:7px;
+  }
+  .sm-leg{
+    display:flex; align-items:baseline; gap:9px;
+    font-size:10.5px; color:#8a9099; line-height:1.5;
+  }
+  .sm-leg b{
+    flex-shrink:0;
+    min-width:74px;
+    color:#4a525c; font-weight:700;
+  }
+  .sm-leg i{ font-style:normal; display:block; }
+  .sm-leg em{
+    font-style:normal; display:block;
+    color:#a2a9b2; font-size:9.8px; margin-top:1px;
+  }
+
+  .sm-device{ margin-bottom:15px; }
+  .sm-device.hide{ display:none; }
+  .sm-device-label{
+    font-size:9.5px; letter-spacing:.09em; text-transform:uppercase;
+    color:#9aa1aa; font-weight:700; margin-bottom:8px;
+  }
+  .sm-option.selected{ border-color:var(--ios-blue); background:#f2f8ff; }
+  .sm-option.selected .sm-chev{ color:var(--ios-blue); }
+
+  .sm-continue{
+    width:100%;
+    background:var(--ios-blue); color:#fff;
+    border:none; border-radius:12px;
+    padding:12px 0;
+    font-family:inherit; font-size:14px; font-weight:650; letter-spacing:-.01em;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .sm-continue:hover{ background:var(--ios-blue-dk); }
+
+  /* ---------- EUDI-Wallet auf dem Smartphone des Beteiligten ---------- */
+  .wallet-bubble{
+    position:fixed;
+    z-index:150;
+    width:274px;
+    opacity:0;
+    transform:translateY(8px) scale(.96);
+    pointer-events:none;
+    transition:opacity .24s ease, transform .24s ease;
+  }
+  .wallet-bubble.show{ opacity:1; transform:translateY(0) scale(1); }
+  .wallet-tail{
+    position:absolute; left:40px; bottom:-8px;
+    width:16px; height:16px;
+    background:#1b1f26;
+    transform:rotate(45deg);
+    border-radius:3px;
+  }
+  .wallet-bubble .phone{
+    background:linear-gradient(170deg,#2a2f37,#14171c);
+    border-radius:34px;
+    padding:9px 8px 7px;
+    box-shadow:0 20px 44px rgba(0,0,0,.48);
+    position:relative;
+  }
+  /* Dynamic-Island-artige Aussparung */
+  .phone-notch{
+    position:absolute; top:17px; left:50%; transform:translateX(-50%);
+    width:74px; height:19px; border-radius:12px;
+    background:#0c0e12;
+    z-index:3;
+  }
+  .phone-screen{
+    background:#f4f6fa;
+    border-radius:27px;
+    padding:38px 12px 12px;
+    height:562px;                /* ~19.5:9, entspricht einem üblichen Smartphone */
+    display:flex; flex-direction:column; gap:11px;
+    position:relative;
+  }
+  .phone-bar{
+    width:96px; height:4px; border-radius:3px;
+    background:#454b55; margin:8px auto 2px;
+  }
+  .eudi-head{
+    display:flex; align-items:center; gap:8px;
+    background:#003399; color:#fff;
+    border-radius:11px; padding:9px 11px;
+  }
+  .eudi-stars svg{ width:20px; height:20px; display:block; }
+  .eudi-head b{ font-size:12px; letter-spacing:.02em; }
+  .eudi-card{
+    background:#fff; border:1px solid #e2e6ec; border-radius:12px; padding:13px 13px;
+  }
+  .eudi-person{ font-size:15px; font-weight:700; color:#16202c; letter-spacing:-.01em; }
+  .eudi-cert{
+    font-size:10.5px; color:#2f7a4c; margin-top:5px; line-height:1.4;
+    display:flex; align-items:flex-start; gap:5px;
+  }
+  .eudi-cert .chk{ font-weight:700; }
+  .eudi-doc{
+    background:#fff; border:1px solid #e2e6ec; border-radius:12px;
+    padding:11px 13px; display:flex; align-items:center; gap:10px;
+  }
+  .eudi-file{
+    width:24px; height:30px; border-radius:3px; flex-shrink:0;
+    background:linear-gradient(160deg,#dfe6ef,#c3ccd8);
+    box-shadow:inset -3px 3px 0 #fff;
+  }
+  .eudi-doc b{ display:block; font-size:12.5px; color:#16202c; }
+  .eudi-doc span{ display:block; font-size:10.5px; color:#8a9099; margin-top:2px; }
+  .eudi-release{
+    margin-top:auto;
+    background:#003399; color:#fff;
+    border:none; border-radius:14px;
+    padding:15px 0;
+    font-family:inherit; font-size:13.5px; font-weight:700;
+    letter-spacing:.01em;
+    transition:background .12s, transform .12s;
+  }
+  .eudi-release.pressed{ background:#00246b; transform:scale(.97); }
+  .eudi-release.gone{ display:none; }
+  .eudi-done{
+    margin-top:auto;
+    display:none;
+    flex-direction:column; align-items:center; gap:9px;
+    padding:16px 0 12px;
+  }
+  .eudi-done.show{ display:flex; animation:approveIn .3s ease; }
+  .eudi-check{
+    width:52px; height:52px; border-radius:50%;
+    background:#e4f3e9; color:#2f7a4c;
+    display:flex; align-items:center; justify-content:center;
+    font-size:27px; font-weight:700;
+  }
+  .eudi-done span:last-child{ font-size:12.5px; color:#2f7a4c; font-weight:700; }
+
+  .kind-tag{
+    display:inline-block; margin-top:2px;
+    font-size:9px; font-weight:700; letter-spacing:.04em;
+    padding:1.5px 7px; border-radius:20px;
+    background:#eef1f0; color:#7c8886;
+  }
+  .kind-tag.qes{ background:var(--navy-pale); color:var(--navy-deep); }
+
+  /* QeS-Vermerk im Unterschriftenfeld eines Beteiligten */
+  .qes-stamp.compact{ padding:6px 10px 6px 8px; gap:8px; }
+  .qes-stamp.compact .qes-icon{ width:22px; height:22px; }
+  .qes-stamp.compact .qes-text b{ font-size:9.6px; }
+  .qes-stamp.compact .qes-text span{ font-size:8.2px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+
+  @media (max-width:760px){
+    .page{ padding:34px 24px 44px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="chooser" id="chooser">
+    <div class="ch-eyebrow">XSign · Clickdummy</div>
+    <h1>XSign läuft auf jedem Endgerät und in jeder Arbeitsumgebung</h1>
+    <div class="ch-sub">XSign ist eine eigenständige Middleware. Sie lässt sich ebenso in eine Textverarbeitung einbinden wie in ein eigenständiges Beurkundungstool — der Signaturvorgang selbst bleibt dabei stets derselbe. Nachfolgend zwei beispielhafte Implementierungen.</div>
+    <div class="ch-cards">
+      <div class="ch-card" id="chooseClassic">
+        <div class="ch-visual classic">
+          <div class="ch-mini">
+            <div class="cm-bar"></div>
+            <div class="cm-ribbon"></div>
+            <div class="cm-body">
+              <div class="cm-line"></div><div class="cm-line"></div>
+              <div class="cm-line s"></div><div class="cm-line"></div>
+              <div class="cm-line s"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ch-body">
+          <div class="ch-kicker">Variante A</div>
+          <h2>Klassische Notarsoftware + Word</h2>
+          <p>Die Urkunde wird in Word verlesen. XSign wird über eine Schaltfläche im Ribbon der Notarsoftware aufgerufen.</p>
+          <div class="ch-tags">
+            <span class="ch-tag">Klassische Notarsoftware, z.&nbsp;B. NOAH, TriNotar</span>
+            <span class="ch-tag">Beurkundung in Word</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ch-card" id="chooseStandalone">
+        <div class="ch-visual standalone">
+          <div class="ch-mini">
+            <div class="cm-bar mac"><i></i><i></i><i></i></div>
+            <div class="cm-body">
+              <div class="cm-line"></div><div class="cm-line"></div>
+              <div class="cm-line s"></div><div class="cm-line"></div>
+              <div class="cm-line g"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ch-body">
+          <div class="ch-kicker">Variante B</div>
+          <h2>Standalone-Lösung</h2>
+          <p>Die Urkunde wird im Beurkundungsmodus der Notarsoftware selbst verlesen. XSign wird unmittelbar am Ende des Dokuments aufgerufen.</p>
+          <div class="ch-tags">
+            <span class="ch-tag gold">Cloud-Software</span>
+            <span class="ch-tag">Nutzung auf iOS</span>
+            <span class="ch-tag">Beurkundung direkt aus Notarsoftware</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ch-foot">Die Auswahl lässt sich jederzeit über „Umgebung wechseln“ ändern.</div>
+  </div>
+
+  <div class="demo-bar">
+    <div class="tag">XSign · Clickdummy · Diskussionsgrundlage </div>
+    <div class="controls">
+      <label class="speed-toggle">
+        <input type="checkbox" id="fastMode"> zügiger Ablauf (Probe)
+      </label>
+      <button class="mode-switch" id="switchModeBtn">Umgebung wechseln</button>
+      <button class="demo-btn" id="resetBtn">Neu starten</button>
+    </div>
+  </div>
+
+  <div class="stage-outer" id="stageOuter">
+   <div class="stage-inner" id="stageInner">
+    <div class="stage" id="stage">
+    <div class="window">
+      <div class="titlebar">
+        <div class="word-mark">W</div>
+        <div class="fname">Kaufvertrag_UR-142-2026.docx — <b>Word</b></div>
+        <div class="status-badge" id="titleBadge"><span class="dot"></span>signiert · PDF/A-2b</div>
+        <div class="spacer"></div>
+        <div class="dots">
+          <span>—</span><span>▢</span><span>✕</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab">Datei</div>
+        <div class="tab">Start</div>
+        <div class="tab">Einfügen</div>
+        <div class="tab">Entwurf</div>
+        <div class="tab">Layout</div>
+        <div class="tab">Referenzen</div>
+        <div class="tab">Überprüfen</div>
+        <div class="tab">Ansicht</div>
+        <div class="tab custom active">Notarsoftware</div>
+      </div>
+
+      <div class="ribbon">
+        <div class="rgroup">
+          <div class="rbuttons">
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h9l3 3v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M7 4v4h5V4"/><path d="M7 13h6"/></svg></div>Speichern</div>
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 5 L3.5 8 L6.5 11"/><path d="M3.5 8h9a4 4 0 0 1 0 8h-2.5"/></svg></div>Verwerfen</div>
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 15.8 L5 12.6 L12.6 5 a1.4 1.4 0 0 1 2 2 L6.9 14.7 Z"/><path d="M11.2 6.4 L13.6 8.8"/></svg></div>Bearbeitung</div>
+          </div>
+          <div class="rlabel">Dokumentenmanagement</div>
+        </div>
+        <div class="rgroup">
+          <div class="rbuttons">
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 6 L3.5 10 L7.5 14"/><path d="M12.5 6 L16.5 10 L12.5 14"/></svg></div>Quellcode</div>
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="9" height="10" rx="1"/><path d="M6 6.5V4.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H13"/></svg></div>Kopiervorlage</div>
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.2a1 1 0 0 1 1-1h4l1.4 1.8H16a1 1 0 0 1 1 1V15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></div>TB-Verwaltung</div>
+          </div>
+          <div class="rlabel">Vorlage</div>
+        </div>
+        <div class="rgroup">
+          <div class="rbuttons">
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11.5"/><path d="M11.5 6 L15.5 10 L11.5 14"/></svg></div>Weiter</div>
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5.5v4h-4"/><path d="M5 14.5v-4h4"/><path d="M15 9.5a6 6 0 0 0-10.7-3.6L5 8"/><path d="M5 10.5a6 6 0 0 0 10.7 3.6L15 12"/></svg></div>Aktualisieren</div>
+          </div>
+          <div class="rlabel">Bearbeiten</div>
+        </div>
+        <div class="rgroup">
+          <div class="rbuttons">
+            <div class="ricon-btn"><div class="glyph"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="9" width="10" height="7" rx="1.2"/><path d="M7 9V6.7a3 3 0 0 1 6 0V9"/><path d="M8 12.6 L9.4 14 L12.3 11.1"/></svg></div>Abschließen</div>
+          </div>
+          <div class="rlabel">Vorlagen</div>
+        </div>
+        <div class="rgroup signature">
+          <div class="rbuttons">
+            <div class="xsign-ribbon-btn" id="xsignBtn">
+              <div class="xsign-mark">
+                <svg viewBox="0 0 24 24"><path d="M6 4 L2.5 20" stroke="#0d2540" stroke-width="2.3" stroke-linecap="round"/><path d="M11 4 L7.5 20" stroke="#1c4a72" stroke-width="2.3" stroke-linecap="round"/><path d="M16 4 L12.5 20" stroke="#46688a" stroke-width="2.3" stroke-linecap="round"/><path d="M21 4 L17.5 20" stroke="#8ea3b8" stroke-width="2.3" stroke-linecap="round"/></svg>
+              </div>
+              <div class="xtext">
+                <b id="xsignBtnLabel">XSign</b>
+                <span>Startet den Signaturprozess für die Urkunde</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="doc-stage" id="docStage">
+        <div class="page" id="page">
+          <div class="doc-stamp" id="docStamp"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:#0f7a3d;"></span>signiert · PDF/A-2b</div>
+
+          <div class="doc-heading">III. Aufertigungen, Abschriften</div>
+          <p>Von dieser Urkunde sollen erhalten:</p>
+          <p class="list-line"><i>Ausfertigung</i><br>1 Grundbuchamt</p>
+          <p class="list-line"><i>Beglaubigte Abschriften</i><br>1 Verkäuferin<br>1 Erwerber<br>1 Finanzierungsbank des Erwerbers</p>
+          <p class="list-line"><i>Unbeglaubigte Abschriften</i><br>1 Gutachterausschuss<br>1 Finanzamt – Grunderwerbsteuerstelle –</p>
+
+          <p class="attest">Vorstehende Niederschrift wurde den Erschienenen vom Notar vorgelesen, daraufhin von ihnen genehmigt und eigenhändig unterschrieben wie folgt:</p>
+
+          <div class="sig-block">
+            <div class="sig-field pending" id="field-anna">
+              <span class="sig-label">Unterschrift Verkäuferin</span>
+              <div class="sig-name">Anna Berger</div>
+              <div class="sig-canvas"><span class="sig-text" id="sig-anna"></span></div>
+            </div>
+            <div class="sig-field pending" id="field-bernd">
+              <span class="sig-label">Unterschrift Erwerber</span>
+              <div class="sig-name">Bernd Berger</div>
+              <div class="sig-canvas"><span class="sig-text" id="sig-bernd"></span></div>
+            </div>
+          </div>
+
+          <div class="sig-field pending notar-field" id="field-notar">
+            <span class="sig-label">Unterschrift Notar</span>
+            <div class="sig-name">Walter Büttner, Notar</div>
+            <div class="qes-slot" id="qes-notar"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="xsign-window" id="xsignWindow">
+      <div class="xnp-topline"></div>
+      <div class="xnp-titlebar">
+        <div class="mark">
+          <svg viewBox="0 0 24 24"><path d="M6 4 L2.5 20" stroke="#0d2540" stroke-width="2.3" stroke-linecap="round"/><path d="M11 4 L7.5 20" stroke="#1c4a72" stroke-width="2.3" stroke-linecap="round"/><path d="M16 4 L12.5 20" stroke="#46688a" stroke-width="2.3" stroke-linecap="round"/><path d="M21 4 L17.5 20" stroke="#8ea3b8" stroke-width="2.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="titles">
+          <b>XSign</b>
+          <span>Signatursystem der BNotK</span>
+        </div>
+        <div class="xnp-close" id="xnpClose">✕</div>
+      </div>
+
+      <div class="xnp-steps">
+        <div class="xnp-step" id="step1"><b>1</b>Übergabe</div>
+        <div class="xnp-step" id="step2"><b>2</b>Genehmigung</div>
+        <div class="xnp-step" id="step3"><b>3</b>Aufruf</div>
+        <div class="xnp-step" id="step4"><b>4</b>Unterschrift</div>
+        <div class="xnp-step" id="step5"><b>5</b>Signatur</div>
+      </div>
+
+      <div class="xnp-body" id="xnpBody">
+        <div class="xnp-section-label">Unterzeichner</div>
+        <div class="signer-row" id="row-anna">
+          <div class="idx">1</div>
+          <div class="who"><b>Anna Berger</b></div>
+          <div class="state">ausstehend</div>
+        </div>
+        <div class="signer-row" id="row-bernd">
+          <div class="idx">2</div>
+          <div class="who"><b>Bernd Berger</b></div>
+          <div class="state">ausstehend</div>
+        </div>
+        <div class="signer-row" id="row-notar">
+          <div class="idx">N</div>
+          <div class="who"><b>Walter Büttner</b></div>
+          <div class="state">ausstehend</div>
+        </div>
+        <div class="xnp-note">Signaturprozess wird gestartet.</div>
+
+        <div class="xnp-section-label" style="margin-top:14px;">Vorgang</div>
+        <div class="log" id="log"></div>
+
+        <div class="result-card" id="resultCard" style="display:none;">
+          <div class="rc-title">Abgeschlossen</div>
+          <div class="result-row"><span class="chk">✓</span><div><b>Signiertes PDF/A</b> — die abgeschlossene elektronische Urkunde.</div></div>
+          <div class="result-row" id="resultRowSigFile"><span class="chk">✓</span><div><b>Signaturdatei</b> — qualifizierte Signatur des Notars, detached beigefügt.</div></div>
+          <div class="result-row"><span class="chk">✓</span><div><b>Status je Unterzeichner</b> — Unterschrift geleistet: ja.</div></div>
+        </div>
+      </div>
+
+      <div class="xnp-footer">
+        <span>XSign · Konzeptvorschlag</span>
+        <span id="tpClock">00:00</span>
+      </div>
+    </div>
+  </div>
+
+    <div class="ipad-device" id="macDesktop">
+      <span class="ipad-btn power"></span>
+      <span class="ipad-btn vol-a"></span>
+      <span class="ipad-btn vol-b"></span>
+      <span class="ipad-cam"></span>
+
+      <div class="ipad-screen" id="ipadScreen">
+        <div class="ios-statusbar">
+          <div class="st-left">
+            <span>9:41</span>
+          </div>
+          <div class="st-right">
+            <span style="font-size:11px;font-weight:600">NOTARIUS</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"><path d="M4.5 10.5a11 11 0 0 1 15 0"/><path d="M8 14a6 6 0 0 1 8 0"/><circle cx="12" cy="17.6" r="1.2" fill="#fff" stroke="none"/></svg>
+            <span class="ios-battery"><i></i></span>
+          </div>
+        </div>
+
+        <div class="ipad-windows" id="macWindows">
+          <div class="nx-window">
+            <div class="nx-titlebar">
+              <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+              <div class="nx-wordmark">
+                <span class="nx-glyph">
+                  <svg viewBox="0 0 48 48"><defs><linearGradient id="nxSealA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e6b4"/><stop offset=".4" stop-color="#dcb85f"/><stop offset=".72" stop-color="#c39b40"/><stop offset="1" stop-color="#8f6d24"/></linearGradient></defs><circle cx="24" cy="24" r="23" fill="url(#nxSealA)"/><circle cx="24" cy="24" r="19.4" fill="#141c2a"/><circle cx="24" cy="24" r="17.6" fill="none" stroke="#dcb85f" stroke-width="1.1"/><circle cx="18.4" cy="15.4" r="1.05" fill="#dcb85f"/><circle cx="24" cy="14.6" r="1.05" fill="#dcb85f"/><circle cx="29.6" cy="15.4" r="1.05" fill="#dcb85f"/><rect x="10.6" y="21.1" width="26.8" height="5.8" rx="1.1" fill="#dcb85f"/><circle cx="18.4" cy="32.6" r="1.05" fill="#dcb85f"/><circle cx="24" cy="33.4" r="1.05" fill="#dcb85f"/><circle cx="29.6" cy="32.6" r="1.05" fill="#dcb85f"/></svg>
+                </span>
+                <b>NOTARIUS</b>
+              </div>
+              <div class="nx-doc">Beurkundungsansicht — UR 142/2026</div>
+              <div class="nx-right">
+                <div class="nx-avatar">WB</div>
+              </div>
+            </div>
+
+            <div class="nx-context">
+              <div class="nx-mode-badge"><span class="pulse"></span>Beurkundungsmodus</div>
+              <div class="nx-case">
+                <b>Grundstückskaufvertrag</b>
+                <span>Berger ./. Berger · UR-Nr. 142/2026 · Anlage 1 verbunden</span>
+              </div>
+              <div class="nx-parties">
+                <div class="nx-chip" id="nx-chip-anna"><i>AB</i>Anna Berger</div>
+                <div class="nx-chip" id="nx-chip-bernd"><i>BB</i>Bernd Berger</div>
+              </div>
+            </div>
+
+            <div class="nx-reader" id="nxReader">
+              <div class="nx-pages" id="nxPages"></div>
+
+              <div class="nx-pager">
+                <button id="nxPrev" title="Vorherige Seite">‹</button>
+                <div class="np-dots" id="nxDots"></div>
+                <button id="nxNext" title="Nächste Seite">›</button>
+              </div>
+
+              <div class="nx-fab" id="nxFab">
+                <div class="fab-mark">
+                  <svg viewBox="0 0 24 24"><path d="M6 4 L2.5 20" stroke="#0d2540" stroke-width="2.3" stroke-linecap="round"/><path d="M11 4 L7.5 20" stroke="#1c4a72" stroke-width="2.3" stroke-linecap="round"/><path d="M16 4 L12.5 20" stroke="#46688a" stroke-width="2.3" stroke-linecap="round"/><path d="M21 4 L17.5 20" stroke="#8ea3b8" stroke-width="2.3" stroke-linecap="round"/></svg>
+                </div>
+                <div class="fab-text">
+                  <b id="nxFabLabel">Mit XSign signieren</b>
+                  <span>Signatursystem der Bundesnotarkammer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="xsign-slot" id="macXsignSlot"></div>
+        </div>
+
+        <div class="ios-dock">
+          <div class="dock-app" style="background:linear-gradient(150deg,#5b8def,#2f5fd0)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
+          <div class="dock-app" style="background:linear-gradient(150deg,#63c98a,#2f8f57)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8"/></svg></div>
+          <div class="dock-app active" style="background:linear-gradient(150deg,#1c2739,#0e1520)"><svg viewBox="0 0 48 48" style="width:28px;height:28px"><defs><linearGradient id="nxSealB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e6b4"/><stop offset=".4" stop-color="#dcb85f"/><stop offset=".72" stop-color="#c39b40"/><stop offset="1" stop-color="#8f6d24"/></linearGradient></defs><circle cx="24" cy="24" r="23" fill="url(#nxSealB)"/><circle cx="24" cy="24" r="19.4" fill="#141c2a"/><circle cx="24" cy="24" r="17.6" fill="none" stroke="#dcb85f" stroke-width="1.1"/><circle cx="18.4" cy="15.4" r="1.05" fill="#dcb85f"/><circle cx="24" cy="14.6" r="1.05" fill="#dcb85f"/><circle cx="29.6" cy="15.4" r="1.05" fill="#dcb85f"/><rect x="10.6" y="21.1" width="26.8" height="5.8" rx="1.1" fill="#dcb85f"/><circle cx="18.4" cy="32.6" r="1.05" fill="#dcb85f"/><circle cx="24" cy="33.4" r="1.05" fill="#dcb85f"/><circle cx="29.6" cy="32.6" r="1.05" fill="#dcb85f"/></svg></div>
+          <div class="dock-app" style="background:linear-gradient(150deg,#f0a63c,#cf7a1c)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4 6.5h6l1.6 2H20v9H4z"/></svg></div>
+          <div class="dock-sep"></div>
+          <div class="dock-app" style="background:linear-gradient(150deg,#8d93a1,#5b616e)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2"/></svg></div>
+        </div>
+
+        <div class="ios-home"></div>
+      </div>
+    </div>
+
+   </div>
+  </div>
+
+  <div class="pad-bubble" id="padBubble">
+    <div class="pad-device">
+      <div class="cam"></div>
+      <div class="pad-screen">
+        <div>
+          <div class="pad-caption">Unterschrift erforderlich</div>
+          <div class="pad-name" id="padName">—</div>
+        </div>
+        <div class="pad-sig-area"><span class="sig-text" id="padSigText"></span></div>
+        <div class="pad-brandstrip">Signatur-Pad</div>
+      </div>
+      <div class="pad-status" id="padStatus"><span class="led"></span><span id="padStatusText">wartet auf Unterschrift …</span></div>
+    </div>
+    <div class="tail"></div>
+  </div>
+
+  <div class="approve-overlay" id="approveOverlay">
+    <div class="approve-card">
+      <div class="approve-head">
+        <div class="eyebrow">XSign · Genehmigung durch die Beteiligten</div>
+        <b>Vollständige Anzeige des Dokuments</b>
+        <span>Die Beteiligten sehen das vollständige Dokument, bevor sie unterschreiben.</span>
+      </div>
+      <div class="approve-doc" id="approveDoc"></div>
+      <div class="approve-foot">
+        <span class="hint">Erst nach Genehmigung durch die Beteiligten beginnt die Unterschriftenstrecke.</span>
+        <button class="approve-btn" id="approveBtn">Genehmigt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sigmode-overlay" id="sigModeOverlay">
+    <div class="sigmode-modal">
+      <div class="sm-title">Wie unterschreiben die Beteiligten?</div>
+      <div class="sm-sub">Das Dokument ist finalisiert. Beide Wege sind nach § 13a Abs. 1 BeurkG gleichwertig und je Person frei wählbar.</div>
+
+      <div class="sm-persons">
+        <div class="sm-person" data-person="anna">
+          <span class="sm-avatar">AB</span>
+          <span class="sm-pname">Anna Berger</span>
+          <span class="sm-seg">
+            <button class="sm-seg-btn active" data-person="anna" data-kind="hand">Eigenhändig</button>
+            <button class="sm-seg-btn" data-person="anna" data-kind="qes">QeS</button>
+          </span>
+        </div>
+        <div class="sm-person" data-person="bernd">
+          <span class="sm-avatar">BB</span>
+          <span class="sm-pname">Bernd Berger</span>
+          <span class="sm-seg">
+            <button class="sm-seg-btn active" data-person="bernd" data-kind="hand">Eigenhändig</button>
+            <button class="sm-seg-btn" data-person="bernd" data-kind="qes">QeS</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="sm-legend">
+        <div class="sm-leg">
+          <b>Eigenhändig</b>
+          <i>Unterschrift mit Echtzeitwiedergabe<em>§ 13a Abs. 1 Nr. 2 BeurkG</em></i>
+        </div>
+        <div class="sm-leg">
+          <b>QeS</b>
+          <i>Elektronische Signatur über die EUDI-Wallet<em>§ 13a Abs. 1 Nr. 1 BeurkG</em></i>
+        </div>
+      </div>
+
+      <div class="sm-device" id="smDeviceRow">
+        <div class="sm-device-label">Erfassung der eigenhändigen Unterschriften</div>
+        <div class="sm-options">
+          <button class="sm-option" id="smPad">
+            <span class="sm-icon">
+              <svg viewBox="0 0 32 32" fill="none">
+                <rect x="2.5" y="9" width="27" height="15" rx="3" fill="#2b2f36"/>
+                <rect x="5.5" y="11.6" width="21" height="9" rx="1.4" fill="#dfe3e2"/>
+                <path d="M8 18.4c2-3.4 3.4-3.4 5 0s3.2 3 5-.6 3.4-2.4 5 .6" stroke="#4a5560" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+                <path d="M24.5 4.2 27 6.6l-7.4 7.4-3 .6.6-3z" fill="#8a929c"/>
+              </svg>
+            </span>
+            <span class="sm-body">
+              <b>Externes Signaturpad</b>
+              <span class="sm-detected"><span class="led"></span>Signotec Zeta erkannt</span>
+            </span>
+            <span class="sm-chev">›</span>
+          </button>
+
+          <button class="sm-option" id="smTablet">
+            <span class="sm-icon">
+              <svg viewBox="0 0 32 32" fill="none">
+                <rect x="5" y="3" width="22" height="26" rx="3" fill="#2b2f36"/>
+                <rect x="7" y="5.6" width="18" height="20.4" rx="1.4" fill="#f4f5f7"/>
+                <path d="M10 20c2.4-4 4-4 5.6 0s3.2 2.6 5-1" stroke="#0a84ff" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                <path d="M23.6 8.6 25.8 10.8 19 17.6l-2.8.6.6-2.8z" fill="#9aa2ac"/>
+              </svg>
+            </span>
+            <span class="sm-body">
+              <b>Direkt auf diesem iPad</b>
+              <span>Erfassung mit dem Eingabestift auf dem Display.</span>
+            </span>
+            <span class="sm-chev">›</span>
+          </button>
+        </div>
+      </div>
+
+      <button class="sm-continue" id="smContinue">Weiter</button>
+    </div>
+  </div>
+
+  <div class="wallet-bubble" id="walletBubble">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="eudi-head">
+          <span class="eudi-stars">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#003399"/><g fill="#ffcc00"><circle cx="12" cy="4.6" r="1.05"/><circle cx="16.2" cy="5.8" r="1.05"/><circle cx="18.9" cy="9" r="1.05"/><circle cx="19.4" cy="13" r="1.05"/><circle cx="17.4" cy="16.6" r="1.05"/><circle cx="14" cy="18.8" r="1.05"/><circle cx="10" cy="18.8" r="1.05"/><circle cx="6.6" cy="16.6" r="1.05"/><circle cx="4.6" cy="13" r="1.05"/><circle cx="5.1" cy="9" r="1.05"/><circle cx="7.8" cy="5.8" r="1.05"/></g></svg>
+          </span>
+          <b>EU Digital Identity</b>
+        </div>
+        <div class="eudi-card">
+          <div class="eudi-person" id="walletName">—</div>
+          <div class="eudi-cert"><span class="chk">✓</span>QeS-Zertifikat · § 13a Abs. 1 Nr. 1 BeurkG</div>
+        </div>
+        <div class="eudi-doc">
+          <span class="eudi-file"></span>
+          <div>
+            <b>Notarielle Urkunde</b>
+            <span>UR 142/2026 · PDF/A</span>
+          </div>
+        </div>
+        <button class="eudi-release" id="walletRelease">Signatur freigeben</button>
+        <div class="eudi-done" id="walletDone">
+          <span class="eudi-check">✓</span>
+          <span>Signatur erteilt</span>
+        </div>
+      </div>
+      <div class="phone-bar"></div>
+    </div>
+    <div class="wallet-tail"></div>
+  </div>
+
+  <div class="ipadsign-overlay" id="ipadSignOverlay">
+    <div class="ipadsign-sheet">
+      <div class="is-head">
+        <div class="is-eyebrow">Unterschrift erforderlich</div>
+        <div class="is-name" id="isName">—</div>
+        <div class="is-hint">Bitte unterschreiben Sie mit dem Eingabestift im Feld.</div>
+      </div>
+      <div class="is-canvas">
+        <div class="is-baseline"></div>
+        <div class="is-x">✗</div>
+        <span class="sig-text" id="isSigText"></span>
+        <svg class="is-stylus" id="isStylus" viewBox="0 0 18 120">
+          <path d="M9 118 L3.2 100 H14.8 Z" fill="#3c4450"/>
+          <rect x="3.2" y="26" width="11.6" height="74" fill="#e9ecf1"/>
+          <rect x="3.2" y="14" width="11.6" height="12" fill="#c9ced6"/>
+          <path d="M3.2 14 a5.8 5.8 0 0 1 11.6 0 z" fill="#e9ecf1"/>
+        </svg>
+      </div>
+      <div class="is-foot">
+        <div class="is-status" id="isStatus"><span class="led"></span><span id="isStatusText">wartet auf Unterschrift …</span></div>
+        <div class="is-badge">§ 13a Abs. 1 Nr. 2 BeurkG · Echtzeitwiedergabe</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notar-overlay" id="notarOverlay">
+    <div class="notar-modal">
+      <div class="notar-head" id="notarHead">
+        <div class="notar-mark" id="notarMark">W</div>
+        <div class="notar-titles">
+          <b id="notarAppName">Notarsoftware</b>
+          <span id="notarDocName">Kaufvertrag_UR-142-2026.docx</span>
+        </div>
+      </div>
+      <div class="notar-body">
+        <div class="notar-spinner"></div>
+        <div class="notar-text">
+          <b id="notarStepTitle">Dokument wird finalisiert</b>
+          <span id="notarStepSub">Unterschriftenfelder, UVZ-Nummer und Anlagen werden eingefügt</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pin-overlay" id="pinOverlay">
+    <div class="pin-modal">
+      <div class="pin-eyebrow">XSign · Signaturkarte des Notars</div>
+      <div class="pin-title">PIN-Eingabe erforderlich</div>
+      <div class="pin-sub">Bitte geben Sie Ihre PIN an, um das Dokument zu signieren.</div>
+      <div class="sig-format-field">
+        <label for="sigFormatSelect">Signaturformat</label>
+        <select id="sigFormatSelect">
+          <option value="pades">Eingebettete Signatur (Inline / PAdES)</option>
+          <option value="cades" selected>Beigefügte Signatur (Attached / CAdES-detached)</option>
+        </select>
+      </div>
+      <div class="pin-display" id="pinDisplay"></div>
+      <div class="pin-grid" id="pinGrid">
+        <div class="pin-key" data-num="1">1</div>
+        <div class="pin-key" data-num="2">2</div>
+        <div class="pin-key" data-num="3">3</div>
+        <div class="pin-key" data-num="4">4</div>
+        <div class="pin-key" data-num="5">5</div>
+        <div class="pin-key" data-num="6">6</div>
+        <div class="pin-key" data-num="7">7</div>
+        <div class="pin-key" data-num="8">8</div>
+        <div class="pin-key" data-num="9">9</div>
+        <div class="pin-key" data-num="c">C</div>
+        <div class="pin-key" data-num="0">0</div>
+        <div class="pin-key ok" data-num="ok">Bestätigen</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="done-overlay" id="doneOverlay">
+    <div class="done-modal">
+      <div class="done-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#e4f3e9"/><path d="M7.5 12.3 L10.4 15.2 L16.5 8.8" fill="none" stroke="#2f7a4c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="done-title">Signaturprozess abgeschlossen</div>
+      <div class="done-text">Der Signaturprozess wurde erfolgreich abgeschlossen. Bitte fahren Sie in Ihrer Notarsoftware fort.</div>
+      <button class="done-btn" id="doneBtn">Schließen</button>
+    </div>
+  </div>
+
+  <div class="confirm-overlay" id="confirmSignOverlay">
+    <div class="confirm-modal">
+      <div class="confirm-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#e7edf3"/><path d="M7.5 12.3 L10.4 15.2 L16.5 8.8" fill="none" stroke="#163a5c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="confirm-title">Bereit zur Signatur</div>
+      <div class="confirm-text">Alle angeforderten Unterschriften liegen vor. Möchten Sie nun die Urkunde mit Ihrer qualifizierten elektronischen Signatur versehen?</div>
+      <div class="confirm-actions">
+        <button class="confirm-btn primary" id="confirmYesBtn">Ja</button>
+        <button class="confirm-btn ghost" id="confirmNoBtn">Nein – Beurkundung abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-overlay" id="cancelWarnOverlay">
+    <div class="confirm-modal">
+      <div class="confirm-icon"><svg viewBox="0 0 24 24"><path d="M12 3 L22 20 H2 Z" fill="#fdecec" stroke="#c23b3b" stroke-width="1.3" stroke-linejoin="round"/><rect x="11.1" y="9" width="1.8" height="6" rx=".9" fill="#c23b3b"/><rect x="11.1" y="16.2" width="1.8" height="1.8" rx=".9" fill="#c23b3b"/></svg></div>
+      <div class="confirm-title">Achtung</div>
+      <div class="confirm-text">Wollen Sie wirklich die Beurkundung abbrechen?</div>
+      <div class="confirm-actions">
+        <button class="confirm-btn ghost" id="cancelBackBtn">Zurück</button>
+        <button class="confirm-btn danger" id="cancelConfirmBtn">Ja, abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const xsignWindow = $('xsignWindow'), xsignBtn = $('xsignBtn'), xsignBtnLabel = $('xsignBtnLabel');
+  const logEl = $('log'), tpClock = $('tpClock'), resultCard = $('resultCard');
+  const padBubble = $('padBubble'), padName = $('padName'), padSigText = $('padSigText'), padStatus = $('padStatus'), padStatusText = $('padStatusText');
+  const docStage = $('docStage'), titleBadge = $('titleBadge'), docStamp = $('docStamp');
+  const approveOverlay = $('approveOverlay'), approveDoc = $('approveDoc'), approveBtn = $('approveBtn'), pageEl = $('page');
+  const pinOverlay = $('pinOverlay'), pinDisplay = $('pinDisplay'), pinGrid = $('pinGrid'), sigFormatSelect = $('sigFormatSelect');
+  const resultRowSigFile = $('resultRowSigFile');
+  const doneOverlay = $('doneOverlay'), doneBtn = $('doneBtn');
+  const confirmSignOverlay = $('confirmSignOverlay'), confirmYesBtn = $('confirmYesBtn'), confirmNoBtn = $('confirmNoBtn');
+  const cancelWarnOverlay = $('cancelWarnOverlay'), cancelBackBtn = $('cancelBackBtn'), cancelConfirmBtn = $('cancelConfirmBtn');
+  const notarOverlay = $('notarOverlay');
+  const fastMode = $('fastMode');
+  const chooser = $('chooser'), macDesktop = $('macDesktop'), stageEl = $('stage');
+  const macXsignSlot = $('macXsignSlot'), nxPages = $('nxPages'), nxDots = $('nxDots');
+  const nxPrev = $('nxPrev'), nxNext = $('nxNext'), nxFab = $('nxFab'), nxFabLabel = $('nxFabLabel');
+  const ipadScreen = $('ipadScreen');
+  const sigModeOverlay = $('sigModeOverlay'), smPad = $('smPad'), smTablet = $('smTablet');
+  const smContinue = $('smContinue'), smDeviceRow = $('smDeviceRow');
+  const walletBubble = $('walletBubble'), walletName = $('walletName');
+  const walletRelease = $('walletRelease'), walletDone = $('walletDone');
+  const ipadSignOverlay = $('ipadSignOverlay'), isName = $('isName'), isSigText = $('isSigText');
+  const isStatus = $('isStatus'), isStatusText = $('isStatusText'), isStylus = $('isStylus');
+
+  // 'pad' = externes Signaturpad · 'tablet' = direkt auf dem iPad
+  let sigMethod = 'pad';
+  // Erfassungsart je Beteiligtem: 'hand' = eigenhändig · 'qes' = qualifizierte Signatur
+  let sigKind = { anna:'hand', bernd:'hand' };
+
+  // 'classic' = Notarsoftware + Word · 'standalone' = NOTARIUS
+  let mode = 'classic';
+
+  const NX_SEAL = '<svg viewBox="0 0 48 48" style="width:22px;height:22px">' +
+    '<defs><linearGradient id="nxSealC" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="#f7e6b4"/><stop offset=".4" stop-color="#dcb85f"/>' +
+    '<stop offset=".72" stop-color="#c39b40"/><stop offset="1" stop-color="#8f6d24"/>' +
+    '</linearGradient></defs>' +
+    '<circle cx="24" cy="24" r="23" fill="url(#nxSealC)"/>' +
+    '<circle cx="24" cy="24" r="19.4" fill="#141c2a"/>' +
+    '<circle cx="24" cy="24" r="17.6" fill="none" stroke="#dcb85f" stroke-width="1.1"/>' +
+    '<circle cx="18.4" cy="15.4" r="1.05" fill="#dcb85f"/><circle cx="24" cy="14.6" r="1.05" fill="#dcb85f"/><circle cx="29.6" cy="15.4" r="1.05" fill="#dcb85f"/>' +
+    '<rect x="10.6" y="21.1" width="26.8" height="5.8" rx="1.1" fill="#dcb85f"/>' +
+    '<circle cx="18.4" cy="32.6" r="1.05" fill="#dcb85f"/><circle cx="24" cy="33.4" r="1.05" fill="#dcb85f"/><circle cx="29.6" cy="32.6" r="1.05" fill="#dcb85f"/>' +
+    '</svg>';
+
+  // Which document carries the signature fields in the active mode
+  const fieldIds = {
+    classic:    { anna:'field-anna',   bernd:'field-bernd',   notar:'field-notar',
+                  sigAnna:'sig-anna',  sigBernd:'sig-bernd',  qes:'qes-notar' },
+    standalone: { anna:'nfield-anna',  bernd:'nfield-bernd',  notar:'nfield-notar',
+                  sigAnna:'nsig-anna', sigBernd:'nsig-bernd', qes:'nqes-notar' }
+  };
+  const ids = () => fieldIds[mode];
+
+  let running = false;
+  let clockSeconds = 0;
+  let clockTimer = null;
+
+  const sigLabels = {
+    anna: "Anna Berger",
+    bernd: "Bernd Berger",
+    notar: "W. Büttner"
+  };
+
+  function delay(ms){
+    const factor = fastMode.checked ? 0.3 : 1;
+    return new Promise(r => setTimeout(r, ms * factor));
+  }
+
+  const loremParas = [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "At vero eos et accusamus et iusto odio dignissimos ducimus, qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.",
+    "Similique sunt in culpa, qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio, nam libero tempore, cum soluta nobis est eligendi optio."
+  ];
+  const loremPages = [
+    { heading: "§ 1 Vertragsgegenstand", paras: [0,1] },
+    { heading: "§ 2 Kaufpreis und Fälligkeit", paras: [2,3] },
+    { heading: "§ 3 Auflassung und Vollzug", paras: [0,2] },
+    { heading: "§ 4 Kosten, Steuern und Belehrungen", paras: [1,3] },
+    { heading: "§ 5 Schlussbestimmungen", paras: [0,3] }
+  ];
+
+  function buildApprovalPages(){
+    let html = '';
+    loremPages.forEach((pg, i) => {
+      html += '<div class="approve-page">';
+      if(i === 0){
+        html += '<div class="ap-title">Urkunde</div><div class="ap-subtitle">Nr. 142 der Urkundenrolle für 2026</div>';
+      }
+      html += '<h5>' + pg.heading + '</h5>';
+      pg.paras.forEach(p => { html += '<p>' + loremParas[p] + '</p>'; });
+      if(i === loremPages.length - 1){
+        html += '<p>Vorgelesen, von den Beteiligten genehmigt und eigenhändig unterschrieben.</p>';
+      }
+      html += '<div class="ap-pagenum">Seite ' + (i+1) + ' von ' + loremPages.length + '</div>';
+      html += '</div>';
+    });
+    return html;
+  }
+
+  // ---- NOTARIUS: paginated deed in Beurkundungsmodus ----
+  const NX_TOTAL = loremPages.length + 1; // Textseiten + Unterschriftenseite
+  let nxCurrent = 0;
+
+  function buildNotariusPages(){
+    let html = '';
+    loremPages.forEach((pg, i) => {
+      html += '<div class="nx-page' + (i === 0 ? ' active' : '') + '">';
+      if(i === 0){
+        html += '<div class="np-title">Urkunde</div><div class="np-sub">Nr. 142 der Urkundenrolle für 2026</div>';
+      }
+      html += '<h5>' + pg.heading + '</h5>';
+      pg.paras.forEach(p => { html += '<p>' + loremParas[p] + '</p>'; });
+      html += '<div class="np-num">Seite ' + (i+1) + ' von ' + NX_TOTAL + '</div>';
+      html += '</div>';
+    });
+
+    // Letzte Seite: Schlussformel und Unterschriftenfelder
+    html += '<div class="nx-page">' +
+      '<p>Vorstehende Niederschrift wurde den Erschienenen vom Notar vorgelesen, daraufhin von ihnen genehmigt und eigenhändig unterschrieben wie folgt:</p>' +
+      '<div class="sig-block nf-hidden" id="nsigBlock">' +
+        '<div class="sig-field pending nf-hidden" id="nfield-anna">' +
+          '<span class="sig-label">Unterschrift Verkäuferin</span>' +
+          '<div class="sig-name">Anna Berger</div>' +
+          '<div class="sig-canvas"><span class="sig-text" id="nsig-anna"></span></div>' +
+        '</div>' +
+        '<div class="sig-field pending nf-hidden" id="nfield-bernd">' +
+          '<span class="sig-label">Unterschrift Erwerber</span>' +
+          '<div class="sig-name">Bernd Berger</div>' +
+          '<div class="sig-canvas"><span class="sig-text" id="nsig-bernd"></span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sig-field pending notar-field nf-hidden" id="nfield-notar">' +
+        '<span class="sig-label">Unterschrift Notar</span>' +
+        '<div class="sig-name">Walter Büttner, Notar</div>' +
+        '<div class="qes-slot" id="nqes-notar"></div>' +
+      '</div>' +
+      '<div class="nx-placeholder" id="nxPlaceholder">' +
+        '<span></span><span></span><span></span>' +
+      '</div>' +
+      '<div class="np-num">Seite ' + NX_TOTAL + ' von ' + NX_TOTAL + '</div>' +
+    '</div>';
+
+    nxPages.innerHTML = html;
+
+    let dots = '';
+    for(let i=0;i<NX_TOTAL;i++){
+      dots += '<div class="np-dot' + (i===0 ? ' on' : '') + '" data-page="' + i + '"></div>';
+    }
+    nxDots.innerHTML = dots;
+    nxDots.querySelectorAll('.np-dot').forEach(d => {
+      d.addEventListener('click', () => showNxPage(parseInt(d.dataset.page, 10)));
+    });
+  }
+
+  function showNxPage(index){
+    if(index < 0 || index >= NX_TOTAL) return;
+    nxCurrent = index;
+    const pages = nxPages.querySelectorAll('.nx-page');
+    pages.forEach((p,i) => p.classList.toggle('active', i === index));
+    nxDots.querySelectorAll('.np-dot').forEach((d,i) => d.classList.toggle('on', i === index));
+    nxPrev.disabled = (index === 0);
+    nxNext.disabled = (index === NX_TOTAL - 1);
+    // Der XSign-Aufruf sitzt am Ende des Dokuments
+    nxFab.classList.toggle('show', index === NX_TOTAL - 1);
+  }
+
+  function waitForApproval(){
+    return new Promise((resolve) => {
+      approveDoc.innerHTML = buildApprovalPages();
+      approveDoc.scrollTop = 0;
+      approveOverlay.classList.add('show');
+      approveBtn.onclick = () => {
+        approveOverlay.classList.remove('show');
+        resolve();
+      };
+    });
+  }
+
+  function confirmBeforeSigning(){
+    return new Promise((resolve) => {
+      function openConfirm(){ confirmSignOverlay.classList.add('show'); }
+      openConfirm();
+      confirmYesBtn.onclick = () => {
+        confirmSignOverlay.classList.remove('show');
+        resolve(true);
+      };
+      confirmNoBtn.onclick = () => {
+        confirmSignOverlay.classList.remove('show');
+        cancelWarnOverlay.classList.add('show');
+      };
+      cancelBackBtn.onclick = () => {
+        cancelWarnOverlay.classList.remove('show');
+        openConfirm();
+      };
+      cancelConfirmBtn.onclick = () => {
+        cancelWarnOverlay.classList.remove('show');
+        resolve(false);
+      };
+    });
+  }
+
+  function enterPin(){
+    return new Promise((resolve) => {
+      const PIN_LENGTH = 6;
+      pinOverlay.classList.add('show');
+      pinDisplay.innerHTML = '';
+      for(let i=0;i<PIN_LENGTH;i++){
+        const d = document.createElement('div');
+        d.className = 'pin-dot';
+        pinDisplay.appendChild(d);
+      }
+      const dotEls = pinDisplay.querySelectorAll('.pin-dot');
+      const okBtn = pinGrid.querySelector('.pin-key.ok');
+      let entered = [];
+
+      function updateDots(){
+        dotEls.forEach((d,i) => d.classList.toggle('filled', i < entered.length));
+        okBtn.classList.toggle('disabled', entered.length < PIN_LENGTH);
+      }
+      updateDots();
+
+      function onKeyClick(e){
+        const btn = e.currentTarget;
+        const num = btn.dataset.num;
+        btn.classList.add('pressed');
+        setTimeout(() => btn.classList.remove('pressed'), 140);
+
+        if(num === 'c'){
+          entered = [];
+          updateDots();
+          return;
+        }
+        if(num === 'ok'){
+          if(entered.length < PIN_LENGTH) return;
+          finish();
+          return;
+        }
+        if(entered.length < PIN_LENGTH){
+          entered.push(num);
+          updateDots();
+        }
+      }
+
+      const keys = pinGrid.querySelectorAll('.pin-key');
+      keys.forEach(k => k.addEventListener('click', onKeyClick));
+
+      function finish(){
+        keys.forEach(k => k.removeEventListener('click', onKeyClick));
+        pinOverlay.classList.remove('show');
+        resolve();
+      }
+    });
+  }
+
+  function startClock(){
+    clockSeconds = 0;
+    tpClock.textContent = '00:00';
+    clockTimer = setInterval(() => {
+      clockSeconds++;
+      const m = String(Math.floor(clockSeconds/60)).padStart(2,'0');
+      const s = String(clockSeconds%60).padStart(2,'0');
+      tpClock.textContent = m + ':' + s;
+    }, 1000);
+  }
+  function stopClock(){ if(clockTimer) clearInterval(clockTimer); }
+
+  function log(msg, fine, kind){
+    const row = document.createElement('div');
+    row.className = 'log-entry ' + (kind || 'spin');
+    row.innerHTML = '<span class="ts">' + tpClock.textContent + '</span><span class="ico"></span><div class="msg"><b>' + msg + '</b>' + (fine ? '<span class="fine">'+fine+'</span>' : '') + '</div>';
+    logEl.appendChild(row);
+    logEl.scrollTop = logEl.scrollHeight;
+    return row;
+  }
+  function markDone(row){ row.classList.remove('spin'); row.classList.add('ok'); }
+
+  function setStep(n, mode){
+    for(let i=1;i<=5;i++){
+      const el = $('step'+i);
+      el.classList.remove('active','done');
+      if(i < n) el.classList.add('done');
+      if(i === n && mode === 'active') el.classList.add('active');
+      if(i === n && mode === 'done') el.classList.add('done');
+    }
+  }
+
+  function setSignerState(id, state){
+    const row = $('row-'+id);
+    row.classList.remove('active','done');
+    const stateEl = row.querySelector('.state');
+    const isQes = sigKind[id] === 'qes';
+    if(state === 'active'){
+      row.classList.add('active');
+      stateEl.textContent = isQes ? 'signiert …' : 'unterschreibt …';
+    }
+    else if(state === 'done'){
+      row.classList.add('done');
+      stateEl.textContent = isQes ? 'signiert ✓' : 'erfasst ✓';
+    }
+    else { stateEl.textContent = 'ausstehend'; }
+  }
+
+  // Erfassungsart als kleine Marke in der Unterzeichnerliste
+  function markSignerKinds(){
+    ['anna','bernd'].forEach(p => {
+      const who = $('row-'+p).querySelector('.who');
+      let tag = who.querySelector('.kind-tag');
+      if(!tag){
+        tag = document.createElement('span');
+        tag.className = 'kind-tag';
+        who.appendChild(tag);
+      }
+      const isQes = sigKind[p] === 'qes';
+      tag.textContent = isQes ? 'QeS' : 'eigenhändig';
+      tag.classList.toggle('qes', isQes);
+    });
+  }
+
+  let stageScale = 1;
+  const PAD_W = 236, PAD_H = 150;
+  function positionPad(targetField){
+    const r = targetField.getBoundingClientRect();
+    let left = r.left + 6;
+    let top = r.top - PAD_H;
+    if(top < 10) top = r.bottom + 12;           // notfalls unterhalb des Feldes
+    left = Math.max(10, Math.min(left, window.innerWidth - PAD_W - 10));
+    top = Math.max(10, Math.min(top, window.innerHeight - PAD_H - 10));
+    padBubble.style.left = left + 'px';
+    padBubble.style.top = top + 'px';
+  }
+  function repositionPad(){
+    if(!padBubble.classList.contains('show')) return;
+    const activeField = document.querySelector('.sig-field.waiting');
+    if(activeField) positionPad(activeField);
+  }
+
+  function ensureFieldVisible(field){
+    if(mode !== 'standalone') return;
+    const fr = field.getBoundingClientRect();
+    const cr = nxPages.getBoundingClientRect();
+    if(fr.top < cr.top + 12 || fr.bottom > cr.bottom - 12){
+      nxPages.scrollTop += (fr.top - cr.top) / (stageScale || 1) - 70;
+    }
+  }
+
+  function chooseSignatureMethod(){
+    return new Promise((resolve) => {
+      // Segmentierte Auswahl je Beteiligtem
+      sigModeOverlay.querySelectorAll('.sm-seg-btn').forEach(btn => {
+        btn.onclick = () => {
+          const person = btn.dataset.person;
+          sigKind[person] = btn.dataset.kind;
+          sigModeOverlay.querySelectorAll('.sm-seg-btn[data-person="'+person+'"]')
+            .forEach(b => b.classList.toggle('active', b === btn));
+          syncDeviceRow();
+        };
+      });
+
+      // Gerätewahl nur zeigen, wenn überhaupt jemand eigenhändig unterschreibt,
+      // und nur in der Standalone-Variante (dort gibt es das iPad als Alternative)
+      function syncDeviceRow(){
+        const anyHand = sigKind.anna === 'hand' || sigKind.bernd === 'hand';
+        smDeviceRow.classList.toggle('hide', !(anyHand && mode === 'standalone'));
+      }
+      smPad.onclick = () => {
+        sigMethod = 'pad';
+        smPad.classList.add('selected'); smTablet.classList.remove('selected');
+      };
+      smTablet.onclick = () => {
+        sigMethod = 'tablet';
+        smTablet.classList.add('selected'); smPad.classList.remove('selected');
+      };
+      sigMethod = 'pad';
+      smPad.classList.add('selected'); smTablet.classList.remove('selected');
+      syncDeviceRow();
+
+      smContinue.onclick = () => {
+        sigModeOverlay.classList.remove('show');
+        resolve();
+      };
+
+      sigModeOverlay.classList.add('show');
+    });
+  }
+
+  function positionWallet(targetField){
+    const r = targetField.getBoundingClientRect();
+    const W = 274, H = 640;
+    let left = r.left + 6;
+    let top = r.top - H;
+    if(top < 10) top = r.bottom + 12;
+    left = Math.max(10, Math.min(left, window.innerWidth - W - 10));
+    top = Math.max(10, Math.min(top, window.innerHeight - H - 10));
+    walletBubble.style.left = left + 'px';
+    walletBubble.style.top = top + 'px';
+  }
+
+  // Qualifizierte elektronische Signatur eines Beteiligten über die EUDI-Wallet
+  async function runQesSignature(name, fieldId, textId, pathKey){
+    const field = $(fieldId);
+    field.classList.remove('pending');
+    field.classList.add('waiting');
+    ensureFieldVisible(field);
+
+    walletName.textContent = name;
+    walletRelease.classList.remove('gone','pressed');
+    walletDone.classList.remove('show');
+    positionWallet(field);
+    walletBubble.classList.add('show');
+
+    await delay(2040);
+    walletRelease.classList.add('pressed');
+    await delay(fastMode.checked ? 420 : 935);
+    walletRelease.classList.remove('pressed');
+    walletRelease.classList.add('gone');
+    walletDone.classList.add('show');
+
+    await delay(fastMode.checked ? 850 : 2040);
+
+    // Im Dokument erscheint statt der Handschrift ein Signaturvermerk
+    const canvas = field.querySelector('.sig-canvas');
+    if(canvas){
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('de-DE');
+      const timeStr = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+      canvas.style.borderBottom = 'none';
+      canvas.innerHTML =
+        '<div class="qes-stamp compact show">' +
+          '<div class="qes-icon"><svg viewBox="0 0 24 24"><path d="M12 2 L20 5 V11 C20 16 16.5 20 12 22 C7.5 20 4 16 4 11 V5 Z" fill="#eaf0f6" stroke="#163a5c" stroke-width="1.3"/><path d="M8.4 12 L10.8 14.5 L16 9" fill="none" stroke="#163a5c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+          '<div class="qes-text"><b>Qualifiziert elektronisch signiert</b>' +
+          '<span>' + name + ' · EUDI-Wallet</span>' +
+          '<span>§ 13a Abs. 1 Nr. 1 BeurkG · ' + dateStr + ', ' + timeStr + ' Uhr</span></div>' +
+        '</div>';
+    }
+
+    await delay(1020);
+    field.classList.remove('waiting');
+    field.classList.add('signed');
+    walletBubble.classList.remove('show');
+    await delay(300);
+  }
+
+  async function runSignature(name, fieldId, textId, pathKey){
+    if(sigKind[pathKey] === 'qes'){
+      return runQesSignature(name, fieldId, textId, pathKey);
+    }
+    if(mode === 'standalone' && sigMethod === 'tablet'){
+      return runSignatureOnScreen(name, fieldId, textId, pathKey);
+    }
+    return runSignatureOnExternalPad(name, fieldId, textId, pathKey);
+  }
+
+  // Unterschrift unmittelbar auf dem iPad-Display
+  async function runSignatureOnScreen(name, fieldId, textId, pathKey){
+    const field = $(fieldId);
+    field.classList.remove('pending');
+    field.classList.add('waiting');
+    ensureFieldVisible(field);
+
+    isName.textContent = name;
+    isSigText.textContent = '';
+    isSigText.classList.remove('reveal');
+    isSigText.style.animation = 'none';
+    isStatus.classList.remove('done');
+    isStatusText.textContent = 'wartet auf Unterschrift …';
+    isStylus.classList.remove('show');
+    ipadSignOverlay.classList.add('show');
+
+    await delay(1300);
+
+    isStatusText.textContent = 'Unterschrift wird erfasst …';
+    isStylus.classList.add('show');
+    const label = sigLabels[pathKey];
+    isSigText.textContent = label;
+    void isSigText.offsetWidth;
+    isSigText.style.animation = 'revealSig ' + (fastMode.checked ? 0.9 : 2.6) + 's cubic-bezier(.25,.75,.35,1) forwards';
+
+    await delay(fastMode.checked ? 900 : 2900);
+
+    isStatus.classList.add('done');
+    isStatusText.textContent = 'erfasst';
+    isStylus.classList.remove('show');
+
+    const docText = $(textId);
+    docText.textContent = label;
+    docText.classList.add('reveal');
+
+    await delay(900);
+    field.classList.remove('waiting');
+    field.classList.add('signed');
+    ipadSignOverlay.classList.remove('show');
+    await delay(300);
+  }
+
+  async function runSignatureOnExternalPad(name, fieldId, textId, pathKey){
+    const field = $(fieldId);
+    field.classList.remove('pending');
+    field.classList.add('waiting');
+    ensureFieldVisible(field);
+    positionPad(field);
+    padName.textContent = name;
+    padSigText.textContent = '';
+    padSigText.classList.remove('reveal');
+    padStatus.classList.remove('done');
+    padStatusText.textContent = 'wartet auf Unterschrift …';
+    padBubble.classList.add('show');
+
+    await delay(1300);
+
+    padStatusText.textContent = 'Unterschrift wird erfasst …';
+    const label = sigLabels[pathKey];
+    padSigText.textContent = label;
+    padSigText.style.animation = 'none';
+    void padSigText.offsetWidth;
+    padSigText.style.animation = 'revealSig ' + (fastMode.checked ? 0.9 : 2.6) + 's cubic-bezier(.25,.75,.35,1) forwards';
+
+    await delay(fastMode.checked ? 900 : 2900);
+
+    padStatus.classList.add('done');
+    padStatusText.textContent = 'erfasst';
+
+    const docText = $(textId);
+    docText.textContent = label;
+    docText.classList.add('reveal');
+
+    await delay(1000);
+    field.classList.remove('waiting');
+    field.classList.add('signed');
+    padBubble.classList.remove('show');
+    await delay(300);
+  }
+
+  function setTrigger(text, state){
+    if(mode === 'classic'){
+      xsignBtnLabel.textContent = text;
+      xsignBtn.classList.toggle('busy', state === 'busy');
+      if(state === 'done') xsignBtn.classList.add('done');
+    } else {
+      nxFabLabel.textContent = text;
+      nxFab.classList.toggle('busy', state === 'busy');
+      if(state === 'done') nxFab.classList.add('done');
+    }
+  }
+  function triggerIsDone(){
+    return mode === 'classic' ? xsignBtn.classList.contains('done') : nxFab.classList.contains('done');
+  }
+
+  async function runSequence(){
+    running = true;
+    setTrigger('XSign — läuft …', 'busy');
+    xsignWindow.classList.add('show');
+    if(mode === 'standalone') showNxPage(NX_TOTAL - 1);
+    fitStage();
+    startClock();
+
+    // Step 1 — Übergabe
+    setStep(1,'active');
+    let r = log('Verbindung zur Signaturstelle wird hergestellt', 'Signaturgerät verbunden');
+    await delay(700); markDone(r);
+    r = log('Dokument wird aus der Notarsoftware übernommen', 'Kaufvertrag_UR-142-2026.docx');
+    await delay(750); markDone(r);
+    setStep(1,'done');
+
+    // Step 2 — Genehmigung durch die Beteiligten
+    setStep(2,'active');
+    r = log('Dokument wird den Beteiligten vollständig zur Genehmigung angezeigt', 'Genehmigung der Beteiligten wird abgewartet');
+    await delay(600); markDone(r);
+    await waitForApproval();
+    log('Dokument durch die Beteiligten genehmigt', null, 'ok');
+    setStep(2,'done');
+
+    // Step 3 — Aufruf aus Word
+    setStep(3,'active');
+    r = log('Unterschriftenfelder erkannt', '2 Beteiligte wurden von Notarsoftware übergeben');
+    await delay(700); markDone(r);
+    const handLabel = (mode === 'standalone' && sigMethod === 'tablet')
+      ? 'Eingabestift auf dem iPad'
+      : 'Externes Signaturpad · Signotec Zeta';
+    const kindText = p => sigKind[p] === 'qes' ? 'QeS über EUDI-Wallet' : handLabel;
+    r = log('Erfassungsart je Beteiligtem festgelegt',
+      'Anna Berger: ' + kindText('anna') + ' · Bernd Berger: ' + kindText('bernd'));
+    await delay(650); markDone(r);
+    setStep(3,'done');
+
+    // Step 4 — Unterschrift der Beteiligten
+    setStep(4,'active');
+    markSignerKinds();
+    setSignerState('anna','active');
+    let r3 = log(sigKind.anna === 'qes'
+      ? 'Warte auf Signaturfreigabe von Anna Berger'
+      : 'Warte auf Unterschrift von Anna Berger');
+    await runSignature('Anna Berger', ids().anna, ids().sigAnna, 'anna');
+    markDone(r3);
+    setSignerState('anna','done');
+    log(sigKind.anna === 'qes'
+      ? 'Qualifizierte Signatur von Anna Berger erhalten'
+      : 'Unterschrift von Anna Berger erfasst', null, 'ok');
+
+    await delay(300);
+
+    setSignerState('bernd','active');
+    let r4 = log(sigKind.bernd === 'qes'
+      ? 'Warte auf Signaturfreigabe von Bernd Berger'
+      : 'Warte auf Unterschrift von Bernd Berger');
+    await runSignature('Bernd Berger', ids().bernd, ids().sigBernd, 'bernd');
+    markDone(r4);
+    setSignerState('bernd','done');
+    log(sigKind.bernd === 'qes'
+      ? 'Qualifizierte Signatur von Bernd Berger erhalten'
+      : 'Unterschrift von Bernd Berger erfasst', null, 'ok');
+
+    setStep(4,'done');
+
+    const wantsToSign = await confirmBeforeSigning();
+    if(!wantsToSign){
+      log('Beurkundung durch den Notar abgebrochen', 'Vorgang wurde vor der Signatur beendet', 'cancel');
+      setTrigger('XSign — abgebrochen', 'idle');
+      stopClock();
+      running = false;
+      return;
+    }
+
+    // Step 5 — Signatur und Rückgabe
+    setStep(5,'active');
+    setSignerState('notar','active');
+    r = log('PIN-Eingabe zur Freigabe der Signaturkarte', 'Bitte geben Sie die PIN auf Ihrem Signaturgerät an');
+    await enterPin();
+    markDone(r);
+
+    const sigFormat = sigFormatSelect.value;
+    const sigFormatLabels = {
+      pades: 'Eingebettete Signatur (Inline / PAdES)',
+      cades: 'Beigefügte Signatur (Attached / CAdES-detached)'
+    };
+    const sigFormatLabel = sigFormatLabels[sigFormat];
+
+    r = log('Qualifizierte Signatur des Notars wird angebracht', sigFormatLabel);
+    await delay(1000);
+    const notarField = $(ids().notar);
+    notarField.classList.remove('pending');
+    notarField.classList.add('waiting');
+    await delay(fastMode.checked ? 300 : 900);
+    const qesSlot = $(ids().qes);
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('de-DE');
+    const timeStr = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+    qesSlot.innerHTML =
+      '<div class="qes-stamp" id="qesStamp">' +
+        '<div class="qes-icon"><svg viewBox="0 0 24 24"><path d="M12 2 L20 5 V11 C20 16 16.5 20 12 22 C7.5 20 4 16 4 11 V5 Z" fill="#eaf0f6" stroke="#163a5c" stroke-width="1.3"/><path d="M8.4 12 L10.8 14.5 L16 9" fill="none" stroke="#163a5c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+        '<div class="qes-text"><b>Qualifiziert elektronisch signiert</b><span>Walter Büttner, Notar · ' + sigFormatLabel + '</span><span>§ 13a Abs. 2 BeurkG · ' + dateStr + ', ' + timeStr + ' Uhr</span></div>' +
+      '</div>';
+    await delay(50);
+    $('qesStamp').classList.add('show');
+    await delay(fastMode.checked ? 500 : 1500);
+    notarField.classList.remove('waiting');
+    notarField.classList.add('signed');
+    markDone(r);
+    setSignerState('notar','done');
+
+    r = log('Dokument wird nach PDF/A-2b gewandelt', 'Wandlung erfolg durch Notarsoftware');
+    await delay(750); markDone(r);
+
+    if(sigFormat === 'pades'){
+      resultRowSigFile.innerHTML = '<span class="chk">✓</span><div><b>Signatur eingebettet</b> — qualifizierte Signatur des Notars direkt im PDF/A (PAdES), keine gesonderte Signaturdatei.</div>';
+      r = log('Rückgabe an die Notarsoftware', 'signiertes PDF/A mit eingebetteter Signatur · Status je Unterzeichner');
+    } else {
+      resultRowSigFile.innerHTML = '<span class="chk">✓</span><div><b>Signaturdatei</b> — qualifizierte Signatur des Notars, detached beigefügt (CAdES).</div>';
+      r = log('Rückgabe an die Notarsoftware', 'signiertes PDF/A · Signaturdatei · Status je Unterzeichner');
+    }
+    await delay(750); markDone(r);
+
+    setStep(5,'done');
+
+    resultCard.style.display = 'block';
+    if(mode === 'classic'){
+      titleBadge.classList.add('show');
+      docStamp.classList.add('show');
+    }
+    setTrigger('XSign — abgeschlossen ✓', 'done');
+    stopClock();
+    running = false;
+
+    await delay(400);
+    doneOverlay.classList.add('show');
+  }
+
+  function revealField(id){
+    const el = $(id);
+    if(!el) return;
+    el.classList.remove('nf-hidden');
+    el.classList.add('nf-reveal');
+    nxScrollToEnd();
+  }
+
+  function nxScrollToEnd(){
+    try { nxPages.scrollTo({ top: nxPages.scrollHeight, behavior: 'smooth' }); }
+    catch(e){ nxPages.scrollTop = nxPages.scrollHeight; }
+  }
+
+  async function runNotarFinalization(){
+    const head = $('notarHead'), markEl = $('notarMark');
+    const stepTitle = $('notarStepTitle'), stepSub = $('notarStepSub');
+    stepTitle.textContent = 'Dokument wird finalisiert';
+
+    if(mode === 'standalone'){
+      head.style.background = 'var(--nx-ink)';
+      markEl.style.background = 'transparent';
+      markEl.innerHTML = NX_SEAL;
+      $('notarAppName').textContent = 'NOTARIUS';
+      $('notarDocName').textContent = 'Beurkundungsansicht — UR 142/2026';
+
+      // Panel blockiert die Sicht auf das Dokument nicht
+      notarOverlay.classList.add('inline');
+      stepSub.textContent = 'Urkunde wird abgeschlossen …';
+      notarOverlay.classList.add('show');
+
+      await delay(800);
+
+      // Platzhalter weicht den echten Feldern
+      const ph = $('nxPlaceholder');
+      if(ph){
+        ph.classList.add('fade');
+        await delay(320);
+        ph.classList.add('nf-hidden');
+      }
+
+      stepSub.textContent = 'Unterschriftenfeld für Anna Berger wird eingefügt';
+      $('nsigBlock').classList.remove('nf-hidden');
+      revealField('nfield-anna');
+      await delay(780);
+
+      stepSub.textContent = 'Unterschriftenfeld für Bernd Berger wird eingefügt';
+      revealField('nfield-bernd');
+      await delay(780);
+
+      stepSub.textContent = 'Unterschriftenfeld für den Notar wird eingefügt';
+      revealField('nfield-notar');
+      await delay(780);
+
+      stepSub.textContent = 'UVZ-Nummer eingetragen, Anlagen verbunden';
+      await delay(700);
+
+      notarOverlay.classList.remove('show');
+      await delay(300);
+      notarOverlay.classList.remove('inline');
+      return;
+    }
+
+    head.style.background = '';
+    markEl.style.background = '';
+    markEl.textContent = 'W';
+    $('notarAppName').textContent = 'Notarsoftware';
+    $('notarDocName').textContent = 'Kaufvertrag_UR-142-2026.docx';
+    stepSub.textContent = 'Unterschriftenfelder, UVZ-Nummer und Anlagen werden eingefügt';
+    notarOverlay.classList.add('show');
+    await delay(3400);
+    notarOverlay.classList.remove('show');
+    await delay(300);
+  }
+
+  async function startFlow(){
+    if(running || triggerIsDone()) return;
+    running = true;
+    setTrigger(mode === 'classic' ? 'Notarsoftware finalisiert …' : 'NOTARIUS finalisiert …', 'busy');
+    await runNotarFinalization();
+    await chooseSignatureMethod();
+    runSequence();
+  }
+
+  xsignBtn.addEventListener('click', startFlow);
+  nxFab.addEventListener('click', startFlow);
+
+  nxPrev.addEventListener('click', () => showNxPage(nxCurrent - 1));
+  nxNext.addEventListener('click', () => showNxPage(nxCurrent + 1));
+
+  // Alle Dialoge sollen in der Standalone-Variante auf dem iPad selbst erscheinen
+  const OVERLAY_IDS = ['approveOverlay','notarOverlay','pinOverlay','doneOverlay',
+                       'confirmSignOverlay','cancelWarnOverlay','sigModeOverlay','ipadSignOverlay'];
+  function hostOverlays(target){
+    OVERLAY_IDS.forEach(id => {
+      const el = $(id);
+      if(el && el.parentElement !== target) target.appendChild(el);
+    });
+  }
+
+  // ---- Umgebungsauswahl ----
+  function applyMode(next){
+    mode = next;
+    chooser.classList.add('hide');
+    if(next === 'classic'){
+      stageEl.style.display = '';
+      macDesktop.classList.remove('show');
+      stageEl.appendChild(xsignWindow);
+      hostOverlays(document.body);
+    } else {
+      stageEl.style.display = 'none';
+      macDesktop.classList.add('show');
+      macXsignSlot.appendChild(xsignWindow);
+      hostOverlays(ipadScreen);
+      showNxPage(NX_TOTAL - 1);
+    }
+    fitStage();
+  }
+
+  $('chooseClassic').addEventListener('click', () => applyMode('classic'));
+  $('chooseStandalone').addEventListener('click', () => applyMode('standalone'));
+  $('switchModeBtn').addEventListener('click', () => {
+    if(running){
+      if(!confirm('Der Signaturvorgang läuft noch. Umgebung trotzdem wechseln? Die Demo wird dabei neu geladen.')) return;
+    }
+    window.location.reload();
+  });
+
+  $('xnpClose').addEventListener('click', () => {
+    xsignWindow.classList.remove('show');
+  });
+
+  $('resetBtn').addEventListener('click', () => { window.location.reload(); });
+  doneBtn.addEventListener('click', () => { doneOverlay.classList.remove('show'); });
+
+  window.addEventListener('resize', repositionPad);
+  window.addEventListener('scroll', repositionPad, true);
+
+  // Keep Word and XSign side by side on any screen width by scaling the
+  // whole stage down uniformly, instead of letting it wrap onto two rows.
+  const stageOuter = $('stageOuter'), stageInner = $('stageInner');
+  function fitStage(){
+    stageInner.style.transform = 'scale(1)';
+    stageOuter.style.height = 'auto';
+    const naturalWidth = stageInner.scrollWidth;
+    const naturalHeight = stageInner.getBoundingClientRect().height;
+    const availableW = stageOuter.clientWidth;
+    // Höhe: was oberhalb der Bühne steht (Kopfzeile) plus etwas Luft abziehen
+    const topOffset = stageOuter.getBoundingClientRect().top + window.scrollY;
+    const availableH = Math.max(320, window.innerHeight - topOffset - 30);
+    const scale = Math.min(1, availableW / naturalWidth, availableH / naturalHeight);
+    stageScale = scale;
+    stageInner.style.transform = 'scale(' + scale + ')';
+    stageOuter.style.height = (naturalHeight * scale) + 'px';
+  }
+  buildNotariusPages();
+  showNxPage(0);
+  fitStage();
+  window.addEventListener('resize', fitStage);
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fitStage); }
+})();
+</script>
+</body>
+</html>
