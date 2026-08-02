@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>XSign – Clickdummy · NKBW</title>
+<title>SigNotar – Clickdummy · NKBW</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root{
@@ -92,7 +92,7 @@
   .demo-btn:hover{ background:#fff; border-color:#b3af9f; }
   .speed-toggle{ display:flex; align-items:center; gap:6px; font-size:12px; color:#6c6a63; }
 
-  /* ---------- stage: Word window + XSign pop-up side by side ---------- */
+  /* ---------- stage: Word window + SigNotar pop-up side by side ---------- */
   .stage-outer{
     width:100%;
     display:flex;
@@ -241,9 +241,9 @@
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
   }
-  .xsign-mark svg{ width:22px; height:22px; }
+  .xsign-mark svg{ width:24px; height:22px; }
   .xsign-ribbon-btn .xtext{ text-align:left; line-height:1.15; }
-  .xsign-ribbon-btn .xtext b{ display:block; font-size:12.5px; letter-spacing:.02em; color:var(--navy-deep); }
+  .xsign-ribbon-btn .xtext b{ display:block; font-size:12.5px; letter-spacing:.04em; font-weight:800; color:var(--navy-deep); }
   .xsign-ribbon-btn .xtext span{ display:block; font-size:9.5px; color:#5c6672; max-width:118px; }
 
   /* ---------- document canvas ---------- */
@@ -523,7 +523,7 @@
   }
   .approve-btn:hover{ background:var(--navy-deep); transform:translateY(-1px); }
 
-  /* ---------- XSign pop-up window (XNP-style light UI) ---------- */
+  /* ---------- SigNotar pop-up window (XNP-style light UI) ---------- */
   .xsign-window{
     width:360px;
     flex-basis:360px;
@@ -556,9 +556,9 @@
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
   }
-  .xnp-titlebar .mark svg{ width:24px; height:24px; }
+  .xnp-titlebar .mark svg{ width:26px; height:24px; }
   .xnp-titlebar .titles{ flex:1; line-height:1.2; white-space:nowrap; }
-  .xnp-titlebar .titles b{ font-size:13.5px; letter-spacing:.01em; color:var(--navy-deep); }
+  .xnp-titlebar .titles b{ font-size:13px; letter-spacing:.11em; font-weight:800; text-transform:uppercase; color:var(--navy-deep); }
   .xnp-titlebar .titles span{ display:block; font-size:9.5px; color:#7a8490; }
   .xnp-close{
     width:22px; height:22px; border-radius:5px;
@@ -1126,7 +1126,7 @@
   .nx-pages::-webkit-scrollbar{ width:8px; }
   .nx-pages::-webkit-scrollbar-thumb{ background:#cfccc6; border-radius:4px; }
   .xsign-slot{ flex-shrink:0; }
-  /* Im Hochformat erscheint XSign als Slide-Over-Fenster über NOTARIUS */
+  /* Im Hochformat erscheint SigNotar als Slide-Over-Fenster über NOTARIUS */
   .ipad-screen .xsign-slot{
     position:absolute;
     top:56px; right:30px;
@@ -1299,9 +1299,9 @@
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
   }
-  .nx-fab .fab-mark svg{ width:20px; height:20px; }
+  .nx-fab .fab-mark svg{ width:22px; height:20px; }
   .nx-fab .fab-text{ text-align:left; line-height:1.2; font-family:var(--nx-ui); }
-  .nx-fab .fab-text b{ display:block; font-size:12.5px; letter-spacing:.02em; }
+  .nx-fab .fab-text b{ display:block; font-size:12px; letter-spacing:.05em; font-weight:800; }
   .nx-fab .fab-text span{ display:block; font-size:9.5px; color:#a8b0bd; }
 
   .nf-hidden{ display:none !important; }
@@ -1397,7 +1397,7 @@
     opacity:0; transform:translateY(10px) scale(.97);
     animation:approveIn .26s ease forwards;
   }
-  /* Kopfzeile in der CI von XSign — der Dialog stammt aus dem Signatursystem */
+  /* Kopfzeile in der CI von SigNotar — der Dialog stammt aus dem Signatursystem */
   .sm-brandbar{
     display:flex; align-items:center; gap:11px;
     margin:0 -24px 18px;
@@ -1410,11 +1410,11 @@
     width:30px; height:30px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
   }
-  .sm-brandmark svg{ width:23px; height:23px; display:block; }
+  .sm-brandmark svg{ width:25px; height:23px; display:block; }
   .sm-brandtext{ line-height:1.2; }
   .sm-brandtext b{
-    display:block; font-size:13.5px; color:var(--navy-deep);
-    letter-spacing:.01em; font-weight:700;
+    display:block; font-size:13px; color:var(--navy-deep);
+    letter-spacing:.11em; font-weight:800; text-transform:uppercase;
   }
   .sm-brandtext > span{
     display:block; font-size:9.5px; color:#7a8490; margin-top:1px;
@@ -1621,7 +1621,99 @@
   }
   .sm-continue:hover{ background:var(--navy-deep); }
 
-  /* ---------- EUDI-Wallet auf dem Smartphone des Beteiligten ---------- */
+  .sm-check{
+    display:flex; align-items:flex-start; gap:10px;
+    background:#f7f8fa;
+    border:1px solid #e9eaee;
+    border-radius:12px;
+    padding:12px 13px;
+    margin-bottom:14px;
+    cursor:pointer;
+    transition:border-color .14s, background .14s;
+  }
+  .sm-check:hover{ border-color:#cfd8e2; }
+  .sm-check input{ position:absolute; opacity:0; width:0; height:0; }
+  .sm-check-box{
+    width:19px; height:19px; border-radius:6px;
+    border:1.6px solid #c3ccd6; background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:1px;
+    transition:background .14s, border-color .14s;
+  }
+  .sm-check-box .tick{ color:#fff; font-size:12px; font-weight:700; opacity:0; transform:scale(.6); transition:opacity .14s, transform .14s; }
+  .sm-check input:checked + .sm-check-box{ background:var(--navy); border-color:var(--navy); }
+  .sm-check input:checked + .sm-check-box .tick{ opacity:1; transform:scale(1); }
+  .sm-check-text b{ display:block; font-size:12.5px; color:#1c1c1e; font-weight:650; letter-spacing:-.01em; }
+  .sm-check-text > span{ display:block; font-size:10.5px; color:#7a8490; margin-top:3px; line-height:1.45; }
+
+  .sm-queue{
+    display:flex; align-items:flex-start; gap:11px;
+    width:100%; margin-top:10px;
+    background:#fff;
+    border:1px solid #e4e4ea;
+    border-radius:12px;
+    padding:12px 13px;
+    text-align:left;
+    font-family:inherit;
+    cursor:pointer;
+    transition:border-color .14s, background .14s, transform .12s;
+  }
+  .sm-queue:hover{ border-color:var(--navy); background:#f5f8fb; transform:translateY(-1px); }
+  .sm-queue-icon{
+    width:30px; height:30px; border-radius:9px;
+    background:var(--navy-pale); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .sm-queue-icon svg{ width:18px; height:18px; }
+  .sm-queue-text b{ display:block; font-size:12.5px; color:#1c1c1e; font-weight:650; letter-spacing:-.01em; }
+  .sm-queue-text > span{ display:block; font-size:10.5px; color:#7a8490; margin-top:3px; line-height:1.45; }
+
+  /* ---------- Signaturstrecke ---------- */
+  .queue-view{ display:none; }
+  .queue-view.show{ display:block; }
+  .queue-intro{
+    font-size:11px; color:#6b7680; line-height:1.5; margin:2px 0 12px;
+  }
+  .queue-list{ display:flex; flex-direction:column; gap:7px; margin-bottom:13px; }
+  .queue-item{
+    display:flex; align-items:center; gap:10px;
+    background:#f7f9fb;
+    border:1px solid #e4eaf0;
+    border-radius:9px;
+    padding:9px 11px;
+    font-size:11.8px;
+    animation:logIn .3s both;
+  }
+  .queue-item .qi-num{
+    width:20px; height:20px; border-radius:50%;
+    background:var(--navy-pale); color:var(--navy-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-size:9.5px; font-weight:700; flex-shrink:0;
+  }
+  .queue-item .qi-body{ flex:1; line-height:1.3; }
+  .queue-item .qi-body b{ display:block; color:#1c2423; font-weight:600; }
+  .queue-item .qi-body span{ display:block; font-size:10px; color:#8b938f; margin-top:1px; }
+  .queue-item .qi-state{ font-size:10px; color:#8b938f; flex-shrink:0; }
+  .queue-item.done{ background:#f4faf6; border-color:#d8ecdf; }
+  .queue-item.done .qi-num{ background:#dcf1e2; color:#2f7a4c; }
+  .queue-item.done .qi-state{ color:#2f7a4c; font-weight:600; }
+  .queue-item.active{ border-color:var(--navy); background:#f2f7fb; }
+  .queue-item.active .qi-num{ background:var(--navy); color:#fff; }
+  .queue-item.active .qi-state{ color:var(--navy-deep); font-weight:600; }
+  .queue-actions{ display:flex; flex-direction:column; gap:8px; }
+  .queue-btn{
+    width:100%; border-radius:9px; padding:10px 0;
+    font-family:var(--ui); font-size:12.5px; font-weight:700;
+    cursor:pointer; border:1px solid transparent;
+    transition:background .14s;
+  }
+  .queue-btn.primary{ background:var(--navy); color:#fff; }
+  .queue-btn.primary:hover{ background:var(--navy-deep); }
+  .queue-btn.ghost{ background:#fff; color:#3d4645; border-color:#d7dde3; }
+  .queue-btn.ghost:hover{ background:#f4f6f7; }
+  .queue-btn:disabled{ opacity:.45; cursor:default; }
+
   .wallet-bubble{
     position:fixed;
     z-index:150;
@@ -1816,9 +1908,9 @@
 <body>
 
   <div class="chooser" id="chooser">
-    <div class="ch-eyebrow">XSign · Clickdummy</div>
-    <h1>XSign läuft auf jedem Endgerät und in jeder Arbeitsumgebung</h1>
-    <div class="ch-sub">XSign ist eine eigenständige Middleware. Sie lässt sich ebenso in eine Textverarbeitung einbinden wie in ein eigenständiges Beurkundungstool — der Signaturvorgang selbst bleibt dabei stets derselbe. Nachfolgend zwei beispielhafte Implementierungen.</div>
+    <div class="ch-eyebrow">SigNotar · Clickdummy</div>
+    <h1>SigNotar läuft auf jedem Endgerät und in jeder Arbeitsumgebung</h1>
+    <div class="ch-sub">SigNotar ist eine eigenständige Middleware. Sie lässt sich ebenso in eine Textverarbeitung einbinden wie in ein eigenständiges Beurkundungstool — der Signaturvorgang selbst bleibt dabei stets derselbe. Nachfolgend zwei beispielhafte Implementierungen.</div>
     <div class="ch-cards">
       <div class="ch-card" id="chooseClassic">
         <div class="ch-visual classic">
@@ -1835,7 +1927,7 @@
         <div class="ch-body">
           <div class="ch-kicker">Variante A</div>
           <h2>Klassische Notarsoftware + Word</h2>
-          <p>Die Urkunde wird in Word verlesen. XSign wird über eine Schaltfläche im Ribbon der Notarsoftware aufgerufen.</p>
+          <p>Die Urkunde wird in Word verlesen. SigNotar wird über eine Schaltfläche im Ribbon der Notarsoftware aufgerufen.</p>
           <div class="ch-tags">
             <span class="ch-tag">Klassische Notarsoftware, z.&nbsp;B. NOAH, TriNotar</span>
             <span class="ch-tag">Beurkundung in Word</span>
@@ -1857,10 +1949,10 @@
         <div class="ch-body">
           <div class="ch-kicker">Variante B</div>
           <h2>Standalone-Lösung</h2>
-          <p>Die Urkunde wird im Beurkundungsmodus der Notarsoftware selbst verlesen. XSign wird unmittelbar am Ende des Dokuments aufgerufen.</p>
+          <p>Die Urkunde wird im Beurkundungsmodus der Notarsoftware selbst verlesen. SigNotar wird unmittelbar am Ende des Dokuments aufgerufen.</p>
           <div class="ch-tags">
             <span class="ch-tag gold">Cloud-Software</span>
-            <span class="ch-tag">betriebssystemunabhängig</span>
+            <span class="ch-tag">Nutzung auf iOS</span>
             <span class="ch-tag">Beurkundung direkt aus Notarsoftware</span>
           </div>
         </div>
@@ -1870,7 +1962,7 @@
   </div>
 
   <div class="demo-bar">
-    <div class="tag">XSign · Clickdummy · Diskussionsgrundlage </div>
+    <div class="tag">SigNotar · Clickdummy · Diskussionsgrundlage </div>
     <div class="controls">
       <label class="speed-toggle">
         <input type="checkbox" id="fastMode"> zügiger Ablauf (Probe)
@@ -1940,10 +2032,10 @@
           <div class="rbuttons">
             <div class="xsign-ribbon-btn" id="xsignBtn">
               <div class="xsign-mark">
-                <svg viewBox="0 0 24 24"><path d="M6 4 L2.5 20" stroke="#0d2540" stroke-width="2.3" stroke-linecap="round"/><path d="M11 4 L7.5 20" stroke="#1c4a72" stroke-width="2.3" stroke-linecap="round"/><path d="M16 4 L12.5 20" stroke="#46688a" stroke-width="2.3" stroke-linecap="round"/><path d="M21 4 L17.5 20" stroke="#8ea3b8" stroke-width="2.3" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 30 28"><path d="M6 3 L10.6 3 L6.6 25 L2 25 Z" fill="#12395f"/><path d="M12 3 L16.6 3 L12.6 25 L8 25 Z" fill="#2b5f8f"/><path d="M18 3 L22.6 3 L18.6 25 L14 25 Z" fill="#5b87ac"/><path d="M24 3 L28.6 3 L24.6 25 L20 25 Z" fill="#9db6c9"/></svg>
               </div>
               <div class="xtext">
-                <b id="xsignBtnLabel">XSign</b>
+                <b id="xsignBtnLabel">SigNotar</b>
                 <span>Startet den Signaturprozess für die Urkunde</span>
               </div>
             </div>
@@ -1955,7 +2047,7 @@
         <div class="page" id="page">
           <div class="doc-stamp" id="docStamp"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:#0f7a3d;"></span>signiert · PDF/A-2b</div>
 
-          <div class="doc-heading">III. Aufertigungen, Abschriften</div>
+          <div class="doc-heading">III. Ausfertigungen, Abschriften</div>
           <p>Von dieser Urkunde sollen erhalten:</p>
           <p class="list-line"><i>Ausfertigung</i><br>1 Grundbuchamt</p>
           <p class="list-line"><i>Beglaubigte Abschriften</i><br>1 Verkäuferin<br>1 Erwerber<br>1 Finanzierungsbank des Erwerbers</p>
@@ -1990,10 +2082,10 @@
       <div class="xnp-topline"></div>
       <div class="xnp-titlebar">
         <div class="mark">
-          <svg viewBox="0 0 24 24"><path d="M6 4 L2.5 20" stroke="#0d2540" stroke-width="2.3" stroke-linecap="round"/><path d="M11 4 L7.5 20" stroke="#1c4a72" stroke-width="2.3" stroke-linecap="round"/><path d="M16 4 L12.5 20" stroke="#46688a" stroke-width="2.3" stroke-linecap="round"/><path d="M21 4 L17.5 20" stroke="#8ea3b8" stroke-width="2.3" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 30 28"><path d="M6 3 L10.6 3 L6.6 25 L2 25 Z" fill="#12395f"/><path d="M12 3 L16.6 3 L12.6 25 L8 25 Z" fill="#2b5f8f"/><path d="M18 3 L22.6 3 L18.6 25 L14 25 Z" fill="#5b87ac"/><path d="M24 3 L28.6 3 L24.6 25 L20 25 Z" fill="#9db6c9"/></svg>
         </div>
         <div class="titles">
-          <b>XSign</b>
+          <b>SigNotar</b>
           <span>Signatursystem der BNotK</span>
         </div>
         <div class="xnp-close" id="xnpClose">✕</div>
@@ -2008,6 +2100,17 @@
       </div>
 
       <div class="xnp-body" id="xnpBody">
+        <div class="queue-view" id="queueView">
+          <div class="xnp-section-label">Signaturstrecke</div>
+          <div class="queue-intro">Sachlich zusammenhängende Urkunden werden gesammelt und anschließend in einem Durchgang gemeinsam signiert.</div>
+          <div class="queue-list" id="queueList"></div>
+          <div class="queue-actions">
+            <button class="queue-btn ghost" id="queueAdd">Weitere Urkunde hinzufügen</button>
+            <button class="queue-btn primary" id="queueStart">Signaturstrecke starten</button>
+          </div>
+        </div>
+
+        <div id="normalView">
         <div class="xnp-section-label">Unterzeichner</div>
         <div class="signer-row" id="row-anna">
           <div class="idx">1</div>
@@ -2034,11 +2137,13 @@
           <div class="result-row"><span class="chk">✓</span><div><b>Signiertes PDF/A</b> — die abgeschlossene elektronische Urkunde.</div></div>
           <div class="result-row" id="resultRowSigFile"><span class="chk">✓</span><div><b>Signaturdatei</b> — qualifizierte Signatur des Notars, detached beigefügt.</div></div>
           <div class="result-row"><span class="chk">✓</span><div><b>Status je Unterzeichner</b> — Unterschrift geleistet: ja.</div></div>
+          <div id="resultExtra"></div>
+        </div>
         </div>
       </div>
 
       <div class="xnp-footer">
-        <span>XSign · Konzeptvorschlag</span>
+        <span>SigNotar · Konzeptvorschlag</span>
         <span id="tpClock">00:00</span>
       </div>
     </div>
@@ -2081,7 +2186,7 @@
             <div class="nx-context">
               <div class="nx-mode-badge"><span class="pulse"></span>Beurkundungsmodus</div>
               <div class="nx-case">
-                <b>Grundstückskaufvertrag</b>
+                <b>Kaufvertrag</b>
                 <span>Berger ./. Berger · UR-Nr. 142/2026 · Anlage 1 verbunden</span>
               </div>
               <div class="nx-parties">
@@ -2101,10 +2206,10 @@
 
               <div class="nx-fab" id="nxFab">
                 <div class="fab-mark">
-                  <svg viewBox="0 0 24 24"><path d="M6 4 L2.5 20" stroke="#0d2540" stroke-width="2.3" stroke-linecap="round"/><path d="M11 4 L7.5 20" stroke="#1c4a72" stroke-width="2.3" stroke-linecap="round"/><path d="M16 4 L12.5 20" stroke="#46688a" stroke-width="2.3" stroke-linecap="round"/><path d="M21 4 L17.5 20" stroke="#8ea3b8" stroke-width="2.3" stroke-linecap="round"/></svg>
+                  <svg viewBox="0 0 30 28"><path d="M6 3 L10.6 3 L6.6 25 L2 25 Z" fill="#12395f"/><path d="M12 3 L16.6 3 L12.6 25 L8 25 Z" fill="#2b5f8f"/><path d="M18 3 L22.6 3 L18.6 25 L14 25 Z" fill="#5b87ac"/><path d="M24 3 L28.6 3 L24.6 25 L20 25 Z" fill="#9db6c9"/></svg>
                 </div>
                 <div class="fab-text">
-                  <b id="nxFabLabel">Mit XSign signieren</b>
+                  <b id="nxFabLabel">Mit SigNotar signieren</b>
                   <span>Signatursystem der Bundesnotarkammer</span>
                 </div>
               </div>
@@ -2149,9 +2254,9 @@
   <div class="approve-overlay" id="approveOverlay">
     <div class="approve-card">
       <div class="approve-head">
-        <div class="eyebrow">XSign · Genehmigung durch die Beteiligten</div>
-        <b>Vollständige Anzeige des Dokuments</b>
-        <span>Die Beteiligten sehen das vollständige Dokument, bevor sie unterschreiben.</span>
+        <div class="eyebrow" id="approveEyebrow">SigNotar · Genehmigung durch die Beteiligten</div>
+        <b id="approveTitle">Vollständige Anzeige des Dokuments</b>
+        <span id="approveSub">Die Beteiligten sehen das vollständige Dokument, bevor sie unterschreiben.</span>
       </div>
       <div class="approve-doc" id="approveDoc"></div>
       <div class="approve-foot">
@@ -2165,15 +2270,15 @@
     <div class="sigmode-modal">
       <div class="sm-brandbar">
         <span class="sm-brandmark">
-          <svg viewBox="0 0 24 24"><path d="M6 4 L2.5 20" stroke="#0d2540" stroke-width="2.3" stroke-linecap="round"/><path d="M11 4 L7.5 20" stroke="#1c4a72" stroke-width="2.3" stroke-linecap="round"/><path d="M16 4 L12.5 20" stroke="#46688a" stroke-width="2.3" stroke-linecap="round"/><path d="M21 4 L17.5 20" stroke="#8ea3b8" stroke-width="2.3" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 30 28"><path d="M6 3 L10.6 3 L6.6 25 L2 25 Z" fill="#12395f"/><path d="M12 3 L16.6 3 L12.6 25 L8 25 Z" fill="#2b5f8f"/><path d="M18 3 L22.6 3 L18.6 25 L14 25 Z" fill="#5b87ac"/><path d="M24 3 L28.6 3 L24.6 25 L20 25 Z" fill="#9db6c9"/></svg>
         </span>
         <span class="sm-brandtext">
-          <b>XSign</b>
+          <b>SigNotar</b>
           <span>Signatursystem der Bundesnotarkammer</span>
         </span>
       </div>
       <div class="sm-title">Wie unterschreiben die Beteiligten?</div>
-      <div class="sm-sub">Das Dokument wurde von der Notarsoftware finalisiert. Wie möchten die Beteiligten unterschreiben?</div>
+      <div class="sm-sub">Das Dokument ist finalisiert. Beide Wege sind nach § 13a Abs. 1 BeurkG gleichwertig und je Person frei wählbar.</div>
 
       <div class="sm-persons">
         <div class="sm-person" data-person="anna">
@@ -2201,7 +2306,7 @@
         </div>
         <div class="sm-leg">
           <b>QeS</b>
-          <i>Elektronische Signatur z.B. über EUDI-Wallet<em>§ 13a Abs. 1 Nr. 1 BeurkG</em></i>
+          <i>Elektronische Signatur über die EUDI-Wallet<em>§ 13a Abs. 1 Nr. 1 BeurkG</em></i>
         </div>
       </div>
 
@@ -2242,7 +2347,30 @@
         </div>
       </div>
 
-      <button class="sm-continue" id="smContinue">Weiter</button>
+      <label class="sm-check" id="smCopyRow">
+        <input type="checkbox" id="smCopy" checked>
+        <span class="sm-check-box"><span class="tick">✓</span></span>
+        <span class="sm-check-text">
+          <b>Elektronisch beglaubigte Abschrift erstellen</b>
+          <span>Wird zusammen mit der Urkunde erzeugt und an die Notarsoftware zur Weiterverarbeitung zurückgegeben.</span>
+        </span>
+      </label>
+
+      <button class="sm-continue" id="smContinue">Signatur starten</button>
+
+      <button class="sm-queue" id="smQueue">
+        <span class="sm-queue-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.2" y="7.6" width="13" height="13" rx="2"/>
+            <path d="M6.8 4.6h9.6a2 2 0 0 1 2 2v9.6"/>
+            <path d="M6.9 14.1l2.1 2.1 4.4-4.6"/>
+          </svg>
+        </span>
+        <span class="sm-queue-text">
+          <b>Urkunde in Signaturqueue einstellen</b>
+          <span>Sachlich zusammenhängende Urkunden lassen sich sammeln und anschließend in einem Durchgang gemeinsam signieren.</span>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -2333,7 +2461,7 @@
 
   <div class="pin-overlay" id="pinOverlay">
     <div class="pin-modal">
-      <div class="pin-eyebrow">XSign · Signaturkarte des Notars</div>
+      <div class="pin-eyebrow">SigNotar · Signaturkarte des Notars</div>
       <div class="pin-title">PIN-Eingabe erforderlich</div>
       <div class="pin-sub">Bitte geben Sie Ihre PIN an, um das Dokument zu signieren.</div>
       <div class="sig-format-field">
@@ -2415,6 +2543,20 @@
   const ipadScreen = $('ipadScreen');
   const sigModeOverlay = $('sigModeOverlay'), smPad = $('smPad'), smTablet = $('smTablet');
   const smContinue = $('smContinue'), smDeviceRow = $('smDeviceRow');
+  const smCopy = $('smCopy'), smQueue = $('smQueue');
+  const queueView = $('queueView'), normalView = $('normalView'), queueList = $('queueList');
+  const queueAdd = $('queueAdd'), queueStart = $('queueStart');
+
+  // Zusätzliche elektronisch beglaubigte Abschrift (Standard: an)
+  let makeCertifiedCopy = true;
+  // Signaturstrecke: gesammelte, sachlich zusammenhängende Urkunden
+  let queue = [];
+  let queueMode = false;
+  const MAIN_DOC = { title:'Kaufvertrag', ref:'UR 142/2026', key:'kauf' };
+  const RELATED_DOCS = [
+    { title:'Finanzierungsvollmacht', ref:'UR 143/2026', key:'vollmacht' },
+    { title:'Grundschuld',            ref:'UR 144/2026', key:'grundschuld' }
+  ];
   const walletBubble = $('walletBubble'), walletName = $('walletName');
   const walletRelease = $('walletRelease'), walletDone = $('walletDone');
   const walletDoc = $('walletDoc'), walletReader = $('walletReader');
@@ -2481,19 +2623,37 @@
     { heading: "§ 5 Schlussbestimmungen", paras: [0,3] }
   ];
 
-  function buildApprovalPages(){
+  // Seitenstruktur der einzelnen Urkunden der Signaturstrecke
+  const DOC_PAGES = {
+    kauf: loremPages,
+    vollmacht: [
+      { heading: "§ 1 Vollmacht", paras: [0,2] },
+      { heading: "§ 2 Umfang und Beschränkungen", paras: [1,3] }
+    ],
+    grundschuld: [
+      { heading: "§ 1 Bestellung der Grundschuld", paras: [0,1] },
+      { heading: "§ 2 Unterwerfung unter die Zwangsvollstreckung", paras: [2,3] },
+      { heading: "§ 3 Zweckbestimmung und Sicherungsabrede", paras: [1,0] }
+    ]
+  };
+
+  function buildApprovalPages(doc){
+    const d = doc || MAIN_DOC;
+    const pages = DOC_PAGES[d.key] || loremPages;
+    const nr = (d.ref || '').replace(/^UR\s*/, '').split('/')[0];
     let html = '';
-    loremPages.forEach((pg, i) => {
+    pages.forEach((pg, i) => {
       html += '<div class="approve-page">';
       if(i === 0){
-        html += '<div class="ap-title">Urkunde</div><div class="ap-subtitle">Nr. 142 der Urkundenrolle für 2026</div>';
+        html += '<div class="ap-title">' + d.title + '</div>' +
+                '<div class="ap-subtitle">Nr. ' + nr + ' der Urkundenrolle für 2026</div>';
       }
       html += '<h5>' + pg.heading + '</h5>';
       pg.paras.forEach(p => { html += '<p>' + loremParas[p] + '</p>'; });
-      if(i === loremPages.length - 1){
+      if(i === pages.length - 1){
         html += '<p>Vorgelesen, von den Beteiligten genehmigt und eigenhändig unterschrieben.</p>';
       }
-      html += '<div class="ap-pagenum">Seite ' + (i+1) + ' von ' + loremPages.length + '</div>';
+      html += '<div class="ap-pagenum">Seite ' + (i+1) + ' von ' + pages.length + '</div>';
       html += '</div>';
     });
     return html;
@@ -2562,13 +2722,26 @@
     nxDots.querySelectorAll('.np-dot').forEach((d,i) => d.classList.toggle('on', i === index));
     nxPrev.disabled = (index === 0);
     nxNext.disabled = (index === NX_TOTAL - 1);
-    // Der XSign-Aufruf sitzt am Ende des Dokuments
+    // Der SigNotar-Aufruf sitzt am Ende des Dokuments
     nxFab.classList.toggle('show', index === NX_TOTAL - 1);
   }
 
-  function waitForApproval(){
+  // Jede Urkunde wird einzeln zur Genehmigung angezeigt
+  function waitForApproval(doc, index, total){
     return new Promise((resolve) => {
-      approveDoc.innerHTML = buildApprovalPages();
+      const d = doc || MAIN_DOC;
+      const many = total && total > 1;
+      $('approveEyebrow').textContent = many
+        ? 'SigNotar · Genehmigung ' + (index+1) + ' von ' + total
+        : 'SigNotar · Genehmigung durch die Beteiligten';
+      $('approveTitle').textContent = many
+        ? d.title + ' — ' + d.ref
+        : 'Vollständige Anzeige des Dokuments';
+      $('approveSub').textContent = many
+        ? 'Die Beteiligten sehen jede Urkunde der Signaturstrecke einzeln, bevor sie unterschreiben.'
+        : 'Die Beteiligten sehen das vollständige Dokument, bevor sie unterschreiben.';
+      approveBtn.textContent = (many && index < total - 1) ? 'Genehmigt — weiter' : 'Genehmigt';
+      approveDoc.innerHTML = buildApprovalPages(d);
       approveDoc.scrollTop = 0;
       approveOverlay.classList.add('show');
       approveBtn.onclick = () => {
@@ -2777,13 +2950,58 @@
       syncDeviceRow();
 
       smContinue.onclick = () => {
+        makeCertifiedCopy = smCopy.checked;
         sigModeOverlay.classList.remove('show');
-        resolve();
+        resolve('sign');
+      };
+      smQueue.onclick = () => {
+        makeCertifiedCopy = smCopy.checked;
+        sigModeOverlay.classList.remove('show');
+        resolve('queue');
       };
 
       sigModeOverlay.classList.add('show');
     });
   }
+
+  // ---- Signaturstrecke ----
+  function renderQueue(){
+    queueList.innerHTML = queue.map((doc, i) =>
+      '<div class="queue-item" id="qitem-' + i + '">' +
+        '<span class="qi-num">' + (i+1) + '</span>' +
+        '<span class="qi-body"><b>' + doc.title + '</b><span>' + doc.ref + '</span></span>' +
+        '<span class="qi-state">eingestellt</span>' +
+      '</div>'
+    ).join('');
+    queueAdd.disabled = (queue.length >= 1 + RELATED_DOCS.length);
+    queueStart.textContent = 'Signaturstrecke starten (' + queue.length + ')';
+  }
+
+  function openQueueView(){
+    queueMode = true;
+    queueView.classList.add('show');
+    normalView.style.display = 'none';
+    xsignWindow.classList.add('show');
+    if(mode === 'standalone') showNxPage(NX_TOTAL - 1);
+    fitStage();
+    renderQueue();
+  }
+
+  queueAdd.addEventListener('click', () => {
+    const next = RELATED_DOCS[queue.length - 1];
+    if(!next) return;
+    queue.push(next);
+    renderQueue();
+  });
+
+  queueStart.addEventListener('click', () => {
+    if(running) return;
+    queueView.classList.remove('show');
+    normalView.style.display = '';
+    running = true;
+    setTrigger('SigNotar — läuft …', 'busy');
+    runSequence();
+  });
 
   function buildWalletReader(){
     let html = '';
@@ -2986,7 +3204,7 @@
 
   async function runSequence(){
     running = true;
-    setTrigger('XSign — läuft …', 'busy');
+    setTrigger('SigNotar — läuft …', 'busy');
     xsignWindow.classList.add('show');
     if(mode === 'standalone') showNxPage(NX_TOTAL - 1);
     fitStage();
@@ -3002,10 +3220,24 @@
 
     // Step 2 — Genehmigung durch die Beteiligten
     setStep(2,'active');
-    r = log('Dokument wird den Beteiligten vollständig zur Genehmigung angezeigt', 'Genehmigung der Beteiligten wird abgewartet');
-    await delay(600); markDone(r);
-    await waitForApproval();
-    log('Dokument durch die Beteiligten genehmigt', null, 'ok');
+    if(queueMode && queue.length > 1){
+      r = log('Urkunden werden einzeln zur Genehmigung angezeigt',
+              queue.length + ' Urkunden der Signaturstrecke');
+      await delay(600); markDone(r);
+      for(let i = 0; i < queue.length; i++){
+        const doc = queue[i];
+        const ar = log('Genehmigung ' + (i+1) + ' von ' + queue.length + ': ' + doc.title, doc.ref);
+        await waitForApproval(doc, i, queue.length);
+        markDone(ar);
+        log(doc.title + ' durch die Beteiligten genehmigt', doc.ref, 'ok');
+        await delay(250);
+      }
+    } else {
+      r = log('Dokument wird den Beteiligten vollständig zur Genehmigung angezeigt', 'Genehmigung der Beteiligten wird abgewartet');
+      await delay(600); markDone(r);
+      await waitForApproval(queue[0] || MAIN_DOC, 0, 1);
+      log('Dokument durch die Beteiligten genehmigt', null, 'ok');
+    }
     setStep(2,'done');
 
     // Step 3 — Aufruf aus Word
@@ -3053,7 +3285,7 @@
     const wantsToSign = await confirmBeforeSigning();
     if(!wantsToSign){
       log('Beurkundung durch den Notar abgebrochen', 'Vorgang wurde vor der Signatur beendet', 'cancel');
-      setTrigger('XSign — abgebrochen', 'idle');
+      setTrigger('SigNotar — abgebrochen', 'idle');
       stopClock();
       running = false;
       return;
@@ -3096,8 +3328,37 @@
     markDone(r);
     setSignerState('notar','done');
 
-    r = log('Dokument wird nach PDF/A-2b gewandelt', 'Wandlung erfolg durch Notarsoftware');
+    // Signaturstrecke: die weiteren Urkunden werden ohne erneuten Aufruf mitsigniert
+    if(queueMode && queue.length > 1){
+      $('qitem-0').classList.add('done');
+      $('qitem-0').querySelector('.qi-state').textContent = 'signiert ✓';
+      for(let i = 1; i < queue.length; i++){
+        const doc = queue[i];
+        const item = $('qitem-' + i);
+        if(item){
+          item.classList.add('active');
+          item.querySelector('.qi-state').textContent = 'signiert …';
+        }
+        const qr = log('Signatur wird angebracht: ' + doc.title, doc.ref + ' · ohne erneuten Aufruf');
+        await delay(fastMode.checked ? 320 : 950);
+        markDone(qr);
+        if(item){
+          item.classList.remove('active');
+          item.classList.add('done');
+          item.querySelector('.qi-state').textContent = 'signiert ✓';
+        }
+      }
+    }
+
+    r = log('Dokument wird nach PDF/A-2b gewandelt', 'Wandlung erfolgt durch die Notarsoftware');
     await delay(750); markDone(r);
+
+    // Zusätzliche elektronisch beglaubigte Abschrift
+    if(makeCertifiedCopy){
+      r = log('Elektronisch beglaubigte Abschrift wird erzeugt',
+              'Beglaubigungsvermerk und qualifizierte Signatur des Notars');
+      await delay(fastMode.checked ? 320 : 900); markDone(r);
+    }
 
     if(sigFormat === 'pades'){
       resultRowSigFile.innerHTML = '<span class="chk">✓</span><div><b>Signatur eingebettet</b> — qualifizierte Signatur des Notars direkt im PDF/A (PAdES), keine gesonderte Signaturdatei.</div>';
@@ -3108,6 +3369,21 @@
     }
     await delay(750); markDone(r);
 
+    if(queueMode && queue.length > 1){
+      r = log('Rückgabe als Serie', queue.length + ' Urkunden an die Notarsoftware übergeben');
+      await delay(650); markDone(r);
+    }
+
+    // Ergebnisliste um Abschrift und Serie ergänzen
+    let extra = '';
+    if(makeCertifiedCopy){
+      extra += '<div class="result-row"><span class="chk">✓</span><div><b>Elektronisch beglaubigte Abschrift</b> — zur Weiterverarbeitung beigefügt.</div></div>';
+    }
+    if(queueMode && queue.length > 1){
+      extra += '<div class="result-row"><span class="chk">✓</span><div><b>Signaturstrecke</b> — ' + queue.length + ' Urkunden in einem Durchgang signiert.</div></div>';
+    }
+    $('resultExtra').innerHTML = extra;
+
     setStep(5,'done');
 
     resultCard.style.display = 'block';
@@ -3115,7 +3391,7 @@
       titleBadge.classList.add('show');
       docStamp.classList.add('show');
     }
-    setTrigger('XSign — abgeschlossen ✓', 'done');
+    setTrigger('SigNotar — abgeschlossen ✓', 'done');
     stopClock();
     running = false;
 
@@ -3199,10 +3475,19 @@
 
   async function startFlow(){
     if(running || triggerIsDone()) return;
+    // Liegt bereits eine Urkunde in der Strecke, führt der Aufruf dorthin zurück
+    if(queueMode){ openQueueView(); return; }
     running = true;
     setTrigger(mode === 'classic' ? 'Notarsoftware finalisiert …' : 'NOTARIUS finalisiert …', 'busy');
     await runNotarFinalization();
-    await chooseSignatureMethod();
+    const choice = await chooseSignatureMethod();
+    if(choice === 'queue'){
+      queue = [MAIN_DOC];
+      running = false;
+      setTrigger('Signaturstrecke — ' + queue.length + ' Urkunde', 'idle');
+      openQueueView();
+      return;
+    }
     runSequence();
   }
 
@@ -3260,7 +3545,7 @@
   window.addEventListener('resize', repositionPad);
   window.addEventListener('scroll', repositionPad, true);
 
-  // Keep Word and XSign side by side on any screen width by scaling the
+  // Keep Word and SigNotar side by side on any screen width by scaling the
   // whole stage down uniformly, instead of letting it wrap onto two rows.
   const stageOuter = $('stageOuter'), stageInner = $('stageInner');
   function fitStage(){
