@@ -14,6 +14,12 @@
     --navy-deep:#0d2540;
     --navy-pale:#e7edf3;
     --navy-slate:#7086a0;
+    /* Notarkammer Baden-Württemberg CI (Startseite) */
+    --nkbw-ink:#14171a;
+    --nkbw-gray:#5c6672;
+    --nkbw-gold:#b6892c;
+    --nkbw-gold-soft:#f3e9d2;
+    --nkbw-rule:#dedad2;
     /* NOTARIUS brand */
     --nx-ink:#121a28;
     --nx-ink-2:#1c2739;
@@ -55,7 +61,7 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    padding:22px 18px 40px;
+    padding:22px 18px 64px;
   }
 
   /* ---------- demo control bar ---------- */
@@ -325,8 +331,9 @@
     font-size:10px;
   }
 
-  .notar-field{ margin-top:24px; max-width:360px; }
-  .qes-slot{ min-height:38px; margin-top:6px; display:flex; align-items:center; }
+  .notar-field{ margin-top:24px; max-width:460px; display:flex; align-items:flex-start; gap:16px; }
+  .notar-field-main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .qes-slot{ min-height:38px; margin-top:6px; display:flex; align-items:center; flex:1; }
   .qes-stamp{
     display:inline-flex; align-items:center; gap:10px;
     border:1px solid #b7c6d3; background:#f2f6fa;
@@ -339,6 +346,10 @@
   .qes-stamp .qes-icon{ width:28px; height:28px; flex-shrink:0; }
   .qes-stamp .qes-text b{ display:block; font-size:10.8px; color:var(--navy-deep); line-height:1.3; }
   .qes-stamp .qes-text span{ display:block; font-size:9px; color:#5c6672; margin-top:1px; line-height:1.35; }
+  .notar-seal-slot{ flex-shrink:0; display:flex; align-items:flex-start; }
+  .notar-seal{ width:87px; height:87px; opacity:0; transform:translateY(5px) scale(.96); }
+  .notar-seal.show{ animation:qesIn .45s ease forwards; }
+  .notar-seal svg{ display:block; width:100%; height:100%; }
 
   .doc-stamp{
     position:absolute;
@@ -779,6 +790,14 @@
   .done-icon{ width:44px; height:44px; margin:0 auto 12px; }
   .done-title{ font-size:15px; font-weight:700; color:#1c2423; margin-bottom:8px; font-family:var(--serif); }
   .done-text{ font-size:12px; color:#4a5250; line-height:1.55; margin-bottom:18px; }
+  .done-extra{
+    font-size:11.5px; color:#2f5f45; line-height:1.5; text-align:left;
+    background:#eef6f0; border:1px solid #cfe7d8; border-radius:6px;
+    padding:9px 12px; margin:-6px 0 16px; display:none;
+  }
+  .done-extra.show{ display:block; }
+  .done-extra .chk{ color:#2f7a4c; font-weight:700; }
+  .done-extra div + div{ margin-top:7px; }
   .done-btn{
     background:var(--navy);
     color:#fff;
@@ -899,10 +918,10 @@
     display:flex; justify-content:space-between;
   }
 
-  /* ---------- mode chooser ---------- */
+  /* ---------- mode chooser (Startseite · CI Notarkammer Baden-Württemberg) ---------- */
   .chooser{
     position:fixed; inset:0;
-    background:linear-gradient(160deg,#1a1f27 0%, #0d1116 60%, #05070a 100%);
+    background:#ffffff;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     z-index:400;
@@ -911,29 +930,30 @@
   .chooser.hide{ display:none; }
   .chooser .ch-eyebrow{
     font-size:10px; letter-spacing:.22em; text-transform:uppercase;
-    color:#8f9099; font-weight:700; margin-bottom:12px;
+    color:var(--nkbw-gold); font-weight:700; margin-bottom:14px;
   }
   .chooser h1{
     font-family:var(--serif);
-    font-size:29px; color:#fff; margin:0 0 12px; text-align:center; font-weight:600; max-width:760px; line-height:1.3;
+    font-size:29px; color:var(--nkbw-ink); margin:0 0 16px; text-align:center; font-weight:700; max-width:760px; line-height:1.3;
   }
+  .chooser .ch-rule{ width:46px; height:2px; background:var(--nkbw-ink); margin:0 0 20px; }
   .chooser .ch-sub{
-    font-size:13px; color:#9ba0aa; margin-bottom:34px; text-align:center; max-width:660px; line-height:1.65;
+    font-size:13px; color:var(--nkbw-gray); margin-bottom:34px; text-align:center; max-width:660px; line-height:1.65;
   }
   .ch-cards{ display:flex; gap:22px; flex-wrap:wrap; justify-content:center; }
   .ch-card{
     width:342px;
     background:#fff;
-    border-radius:12px;
+    border-radius:8px;
     padding:0 0 22px;
     overflow:hidden;
     cursor:pointer;
-    border:1px solid rgba(255,255,255,.08);
-    transition:transform .18s ease, box-shadow .18s ease;
-    box-shadow:0 18px 40px -14px rgba(0,0,0,.6);
+    border:1px solid var(--nkbw-rule);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    box-shadow:0 10px 26px -14px rgba(20,23,26,.18);
     text-align:left;
   }
-  .ch-card:hover{ transform:translateY(-4px); box-shadow:0 28px 60px -16px rgba(0,0,0,.7); }
+  .ch-card:hover{ transform:translateY(-4px); box-shadow:0 18px 36px -16px rgba(20,23,26,.24); border-color:var(--nkbw-gold); }
   .ch-visual{
     height:132px;
     display:flex; align-items:center; justify-content:center;
@@ -958,17 +978,23 @@
   .ch-body{ padding:18px 20px 0; }
   .ch-body .ch-kicker{
     font-size:9.5px; letter-spacing:.11em; text-transform:uppercase; font-weight:700;
-    color:#98a0ab; margin-bottom:5px;
+    color:var(--nkbw-gold); margin-bottom:5px;
   }
-  .ch-body h2{ font-family:var(--serif); font-size:17px; margin:0 0 8px; color:#161b22; font-weight:600; }
-  .ch-body p{ font-size:11.8px; color:#5c6672; line-height:1.55; margin:0 0 12px; }
+  .ch-body h2{ font-family:var(--serif); font-size:17px; margin:0 0 8px; color:var(--nkbw-ink); font-weight:700; }
+  .ch-body p{ font-size:11.8px; color:var(--nkbw-gray); line-height:1.55; margin:0 0 12px; }
   .ch-tags{ display:flex; flex-wrap:wrap; gap:6px; }
   .ch-tag{
     font-size:9.5px; padding:4px 9px; border-radius:20px; line-height:1.35;
-    background:#f1f3f5; color:#5c6672; font-weight:600;
+    background:#f1f3f5; color:var(--nkbw-gray); font-weight:600;
   }
-  .ch-tag.gold{ background:var(--nx-blue-soft); color:var(--nx-blue-dk); }
-  .chooser .ch-foot{ margin-top:28px; font-size:10.5px; color:#71767f; }
+  .ch-tag.gold{ background:var(--nkbw-gold-soft); color:var(--nkbw-gold); }
+  .chooser .ch-foot{ margin-top:28px; font-size:10.5px; color:#8a8f97; text-align:center; }
+  .chooser .ch-imprint{
+    margin-top:14px; max-width:640px; text-align:center;
+    font-size:10px; line-height:1.6; color:#a5a29a;
+  }
+  .chooser .ch-imprint a{ color:#8d9096; text-decoration:underline; }
+  .chooser .ch-imprint a:hover{ color:#5c6672; }
 
   .mode-switch{
     font-family:var(--ui); font-size:12.5px; font-weight:600;
@@ -1788,6 +1814,12 @@
   }
   .eudi-release{ cursor:pointer; }
   .eudi-release:hover{ background:#00246b; }
+  .eudi-queue-note{
+    font-size:10px; color:#003399; font-weight:700; text-align:center;
+    letter-spacing:.03em; text-transform:uppercase;
+    margin-top:2px; display:none;
+  }
+  .eudi-queue-note.show{ display:block; }
   .eudi-release.waiting{ animation:releasePulse 1.5s infinite ease-in-out; }
   @keyframes releasePulse{
     0%,100%{ box-shadow:0 0 0 0 rgba(0,51,153,.42); }
@@ -1905,24 +1937,32 @@
   }
 
   .clickdummy-imprint{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    z-index:100;
     width:100%;
-    max-width:1450px;
-    margin-top:18px;
-    padding:0 4px;
+    max-width:none;
+    margin:0;
+    padding:11px 24px;
     text-align:center;
     font-size:10.5px;
     line-height:1.6;
     color:#a5a29a;
+    background:rgba(253,252,250,.94);
+    border-top:1px solid var(--rule);
+    backdrop-filter:blur(3px);
   }
   .clickdummy-imprint a{ color:#8d9096; text-decoration:underline; }
   .clickdummy-imprint a:hover{ color:#5c6672; }
 </style>
+
 </head>
 <body>
 
   <div class="chooser" id="chooser">
     <div class="ch-eyebrow">SigNotar · Clickdummy</div>
     <h1>SigNotar läuft auf jedem Endgerät und in jeder Arbeitsumgebung</h1>
+    <div class="ch-rule"></div>
     <div class="ch-sub">SigNotar ist eine eigenständige Middleware. Sie lässt sich ebenso in eine Textverarbeitung einbinden wie in ein eigenständiges Beurkundungstool — der Signaturvorgang selbst bleibt dabei stets derselbe. Nachfolgend zwei beispielhafte Implementierungen.</div>
     <div class="ch-cards">
       <div class="ch-card" id="chooseClassic">
@@ -1965,13 +2005,17 @@
           <p>Die Urkunde wird im Beurkundungsmodus der Notarsoftware selbst verlesen. SigNotar wird unmittelbar am Ende des Dokuments aufgerufen.</p>
           <div class="ch-tags">
             <span class="ch-tag gold">Cloud-Software</span>
-            <span class="ch-tag">Nutzung auf iOS</span>
+            <span class="ch-tag">Betriebssystemunabhängig</span>
             <span class="ch-tag">Beurkundung direkt aus Notarsoftware</span>
           </div>
         </div>
       </div>
     </div>
     <div class="ch-foot">Die Auswahl lässt sich jederzeit über „Umgebung wechseln“ ändern.</div>
+    <div class="ch-imprint">
+      Klickdummy zu Diskussionszwecken · Notarassessor Dr. Robert Tinnefeld, Notarkammer Baden-Württemberg ·
+      Diese Datei wird ggf. über GitHub bereitgestellt; es gilt der <a href="https://docs.github.com/de/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">Datenschutzhinweis von GitHub</a>.
+    </div>
   </div>
 
   <div class="demo-bar">
@@ -2082,9 +2126,12 @@
           </div>
 
           <div class="sig-field pending notar-field" id="field-notar">
-            <span class="sig-label">Unterschrift Notar</span>
-            <div class="sig-name">Walter Büttner, Notar</div>
-            <div class="qes-slot" id="qes-notar"></div>
+            <div class="notar-field-main">
+              <span class="sig-label">Unterschrift Notar</span>
+              <div class="sig-name">Walter Büttner, Notar</div>
+              <div class="qes-slot" id="qes-notar"></div>
+            </div>
+            <div class="notar-seal-slot" id="notarSealSlot"></div>
           </div>
 
         </div>
@@ -2258,7 +2305,7 @@
       <div class="cam"></div>
       <div class="pad-screen">
         <div>
-          <div class="pad-caption">Unterschrift erforderlich</div>
+          <div class="pad-caption" id="padCaption">Unterschrift erforderlich</div>
           <div class="pad-name" id="padName">—</div>
         </div>
         <div class="pad-sig-area"><span class="sig-text" id="padSigText"></span></div>
@@ -2409,11 +2456,12 @@
         <button class="eudi-doc" id="walletDoc">
           <span class="eudi-file"></span>
           <div>
-            <b>Notarielle Urkunde</b>
-            <span>UR 142/2026 · PDF/A</span>
+            <b id="walletDocTitle">Notarielle Urkunde</b>
+            <span id="walletDocRef">UR 142/2026 · PDF/A</span>
           </div>
           <span class="eudi-open">Ansehen ›</span>
         </button>
+        <div class="eudi-queue-note" id="walletQueueNote"></div>
         <button class="eudi-release" id="walletRelease">Signatur freigeben</button>
         <div class="eudi-done" id="walletDone">
           <span class="eudi-check">✓</span>
@@ -2436,7 +2484,7 @@
   <div class="ipadsign-overlay" id="ipadSignOverlay">
     <div class="ipadsign-sheet">
       <div class="is-head">
-        <div class="is-eyebrow">Unterschrift erforderlich</div>
+        <div class="is-eyebrow" id="isEyebrow">Unterschrift erforderlich</div>
         <div class="is-name" id="isName">—</div>
         <div class="is-hint">Bitte unterschreiben Sie mit dem Eingabestift im Feld.</div>
       </div>
@@ -2512,6 +2560,7 @@
       <div class="done-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#e4f3e9"/><path d="M7.5 12.3 L10.4 15.2 L16.5 8.8" fill="none" stroke="#2f7a4c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="done-title">Signaturprozess abgeschlossen</div>
       <div class="done-text">Der Signaturprozess wurde erfolgreich abgeschlossen. Bitte fahren Sie in Ihrer Notarsoftware fort.</div>
+      <div class="done-extra" id="doneExtra"></div>
       <button class="done-btn" id="doneBtn">Schließen</button>
     </div>
   </div>
@@ -2545,7 +2594,7 @@
   const $ = (id) => document.getElementById(id);
   const xsignWindow = $('xsignWindow'), xsignBtn = $('xsignBtn'), xsignBtnLabel = $('xsignBtnLabel');
   const logEl = $('log'), tpClock = $('tpClock'), resultCard = $('resultCard');
-  const padBubble = $('padBubble'), padName = $('padName'), padSigText = $('padSigText'), padStatus = $('padStatus'), padStatusText = $('padStatusText');
+  const padBubble = $('padBubble'), padName = $('padName'), padSigText = $('padSigText'), padStatus = $('padStatus'), padStatusText = $('padStatusText'), padCaption = $('padCaption');
   const docStage = $('docStage'), titleBadge = $('titleBadge'), docStamp = $('docStamp');
   const approveOverlay = $('approveOverlay'), approveDoc = $('approveDoc'), approveBtn = $('approveBtn'), pageEl = $('page');
   const pinOverlay = $('pinOverlay'), pinDisplay = $('pinDisplay'), pinGrid = $('pinGrid'), sigFormatSelect = $('sigFormatSelect');
@@ -2578,8 +2627,9 @@
   const walletBubble = $('walletBubble'), walletName = $('walletName');
   const walletRelease = $('walletRelease'), walletDone = $('walletDone');
   const walletDoc = $('walletDoc'), walletReader = $('walletReader');
+  const walletDocTitle = $('walletDocTitle'), walletDocRef = $('walletDocRef'), walletQueueNote = $('walletQueueNote');
   const walletReaderPages = $('walletReaderPages'), walletReaderClose = $('walletReaderClose');
-  const ipadSignOverlay = $('ipadSignOverlay'), isName = $('isName'), isSigText = $('isSigText');
+  const ipadSignOverlay = $('ipadSignOverlay'), isName = $('isName'), isSigText = $('isSigText'), isEyebrow = $('isEyebrow');
   const isStatus = $('isStatus'), isStatusText = $('isStatusText'), isStylus = $('isStylus');
 
   // 'pad' = externes Signaturpad · 'tablet' = direkt auf dem iPad
@@ -2606,9 +2656,9 @@
   // Which document carries the signature fields in the active mode
   const fieldIds = {
     classic:    { anna:'field-anna',   bernd:'field-bernd',   notar:'field-notar',
-                  sigAnna:'sig-anna',  sigBernd:'sig-bernd',  qes:'qes-notar' },
+                  sigAnna:'sig-anna',  sigBernd:'sig-bernd',  qes:'qes-notar',  seal:'notarSealSlot' },
     standalone: { anna:'nfield-anna',  bernd:'nfield-bernd',  notar:'nfield-notar',
-                  sigAnna:'nsig-anna', sigBernd:'nsig-bernd', qes:'nqes-notar' }
+                  sigAnna:'nsig-anna', sigBernd:'nsig-bernd', qes:'nqes-notar', seal:'nNotarSealSlot' }
   };
   const ids = () => fieldIds[mode];
 
@@ -2710,9 +2760,12 @@
         '</div>' +
       '</div>' +
       '<div class="sig-field pending notar-field nf-hidden" id="nfield-notar">' +
-        '<span class="sig-label">Unterschrift Notar</span>' +
-        '<div class="sig-name">Walter Büttner, Notar</div>' +
-        '<div class="qes-slot" id="nqes-notar"></div>' +
+        '<div class="notar-field-main">' +
+          '<span class="sig-label">Unterschrift Notar</span>' +
+          '<div class="sig-name">Walter Büttner, Notar</div>' +
+          '<div class="qes-slot" id="nqes-notar"></div>' +
+        '</div>' +
+        '<div class="notar-seal-slot" id="nNotarSealSlot"></div>' +
       '</div>' +
       '<div class="nx-placeholder" id="nxPlaceholder">' +
         '<span></span><span></span><span></span>' +
@@ -3066,31 +3119,56 @@
     field.classList.add('waiting');
     ensureFieldVisible(field);
 
+    // In der Signaturstrecke unterschreibt jeder Beteiligte jede Urkunde einzeln —
+    // die Wallet zeigt daher jedes Dokument nacheinander mit eigener Freigabe.
+    const docs = (queueMode && queue.length > 1) ? queue : [ (queue[0] || MAIN_DOC) ];
+    const many = docs.length > 1;
+
     walletName.textContent = name;
-    walletRelease.classList.remove('gone','pressed');
-    walletDone.classList.remove('show');
-    walletReader.classList.remove('show');
     positionWallet(field);
-    walletBubble.classList.add('show');
 
-    // Die Freigabe erfolgt durch den Beteiligten selbst — hier per Klick
-    await delay(700);
-    walletRelease.classList.add('waiting');
-    await new Promise((resolve) => {
-      walletRelease.onclick = () => {
-        walletRelease.onclick = null;
-        walletRelease.classList.remove('waiting');
-        resolve();
-      };
-    });
+    for(let i = 0; i < docs.length; i++){
+      const doc = docs[i];
+      walletDocTitle.textContent = doc.title;
+      walletDocRef.textContent = doc.ref + ' · PDF/A';
+      if(many){
+        walletQueueNote.textContent = 'Urkunde ' + (i+1) + ' von ' + docs.length + ' der Signaturstrecke — jede Urkunde erfordert eine eigene Signatur';
+        walletQueueNote.classList.add('show');
+      } else {
+        walletQueueNote.classList.remove('show');
+      }
+      walletRelease.textContent = many ? ('Signatur freigeben (' + (i+1) + '/' + docs.length + ')') : 'Signatur freigeben';
+      walletRelease.classList.remove('gone','pressed');
+      walletDone.classList.remove('show');
+      walletReader.classList.remove('show');
+      walletBubble.classList.add('show');
 
-    walletRelease.classList.add('pressed');
-    await delay(fastMode.checked ? 420 : 935);
-    walletRelease.classList.remove('pressed');
-    walletRelease.classList.add('gone');
-    walletDone.classList.add('show');
+      // Die Freigabe erfolgt durch den Beteiligten selbst — hier per Klick
+      await delay(many ? 450 : 700);
+      walletRelease.classList.add('waiting');
+      await new Promise((resolve) => {
+        walletRelease.onclick = () => {
+          walletRelease.onclick = null;
+          walletRelease.classList.remove('waiting');
+          resolve();
+        };
+      });
 
-    await delay(fastMode.checked ? 850 : 2040);
+      walletRelease.classList.add('pressed');
+      await delay(fastMode.checked ? 420 : 935);
+      walletRelease.classList.remove('pressed');
+      walletRelease.classList.add('gone');
+      walletDone.classList.add('show');
+
+      await delay(fastMode.checked ? (many ? 500 : 850) : (many ? 1250 : 2040));
+
+      if(i < docs.length - 1){
+        walletBubble.classList.remove('show');
+        await delay(fastMode.checked ? 200 : 400);
+      }
+    }
+
+    walletQueueNote.classList.remove('show');
 
     // Im Dokument erscheint statt der Handschrift ein Signaturvermerk
     const canvas = field.querySelector('.sig-canvas');
@@ -3132,35 +3210,47 @@
     field.classList.add('waiting');
     ensureFieldVisible(field);
 
+    // In der Signaturstrecke unterschreibt jeder Beteiligte jede Urkunde einzeln
+    const docs = (queueMode && queue.length > 1) ? queue : [ (queue[0] || MAIN_DOC) ];
+    const many = docs.length > 1;
+    const label = sigLabels[pathKey];
+
     isName.textContent = name;
-    isSigText.textContent = '';
-    isSigText.classList.remove('reveal');
-    isSigText.style.animation = 'none';
-    isStatus.classList.remove('done');
-    isStatusText.textContent = 'wartet auf Unterschrift …';
-    isStylus.classList.remove('show');
     ipadSignOverlay.classList.add('show');
 
-    await delay(1300);
+    for(let i = 0; i < docs.length; i++){
+      const doc = docs[i];
+      isEyebrow.textContent = many
+        ? 'Unterschrift erforderlich · Urkunde ' + (i+1) + ' von ' + docs.length + ' — ' + doc.title
+        : 'Unterschrift erforderlich';
+      isSigText.textContent = '';
+      isSigText.classList.remove('reveal');
+      isSigText.style.animation = 'none';
+      isStatus.classList.remove('done');
+      isStatusText.textContent = 'wartet auf Unterschrift …';
+      isStylus.classList.remove('show');
 
-    isStatusText.textContent = 'Unterschrift wird erfasst …';
-    isStylus.classList.add('show');
-    const label = sigLabels[pathKey];
-    isSigText.textContent = label;
-    void isSigText.offsetWidth;
-    isSigText.style.animation = 'revealSig ' + (fastMode.checked ? 0.9 : 2.6) + 's cubic-bezier(.25,.75,.35,1) forwards';
+      await delay(many ? 850 : 1300);
 
-    await delay(fastMode.checked ? 900 : 2900);
+      isStatusText.textContent = 'Unterschrift wird erfasst …';
+      isStylus.classList.add('show');
+      isSigText.textContent = label;
+      void isSigText.offsetWidth;
+      isSigText.style.animation = 'revealSig ' + (fastMode.checked ? 0.9 : 2.6) + 's cubic-bezier(.25,.75,.35,1) forwards';
 
-    isStatus.classList.add('done');
-    isStatusText.textContent = 'erfasst';
-    isStylus.classList.remove('show');
+      await delay(fastMode.checked ? 900 : 2900);
+
+      isStatus.classList.add('done');
+      isStatusText.textContent = 'erfasst';
+      isStylus.classList.remove('show');
+
+      await delay(many ? 500 : 900);
+    }
 
     const docText = $(textId);
     docText.textContent = label;
     docText.classList.add('reveal');
 
-    await delay(900);
     field.classList.remove('waiting');
     field.classList.add('signed');
     ipadSignOverlay.classList.remove('show');
@@ -3173,32 +3263,45 @@
     field.classList.add('waiting');
     ensureFieldVisible(field);
     positionPad(field);
+
+    // In der Signaturstrecke unterschreibt jeder Beteiligte jede Urkunde einzeln
+    const docs = (queueMode && queue.length > 1) ? queue : [ (queue[0] || MAIN_DOC) ];
+    const many = docs.length > 1;
+    const label = sigLabels[pathKey];
+
     padName.textContent = name;
-    padSigText.textContent = '';
-    padSigText.classList.remove('reveal');
-    padStatus.classList.remove('done');
-    padStatusText.textContent = 'wartet auf Unterschrift …';
     padBubble.classList.add('show');
 
-    await delay(1300);
+    for(let i = 0; i < docs.length; i++){
+      const doc = docs[i];
+      padCaption.textContent = many
+        ? 'Urkunde ' + (i+1) + ' von ' + docs.length + ' — ' + doc.title
+        : 'Unterschrift erforderlich';
+      padSigText.textContent = '';
+      padSigText.classList.remove('reveal');
+      padStatus.classList.remove('done');
+      padStatusText.textContent = 'wartet auf Unterschrift …';
 
-    padStatusText.textContent = 'Unterschrift wird erfasst …';
-    const label = sigLabels[pathKey];
-    padSigText.textContent = label;
-    padSigText.style.animation = 'none';
-    void padSigText.offsetWidth;
-    padSigText.style.animation = 'revealSig ' + (fastMode.checked ? 0.9 : 2.6) + 's cubic-bezier(.25,.75,.35,1) forwards';
+      await delay(many ? 850 : 1300);
 
-    await delay(fastMode.checked ? 900 : 2900);
+      padStatusText.textContent = 'Unterschrift wird erfasst …';
+      padSigText.textContent = label;
+      padSigText.style.animation = 'none';
+      void padSigText.offsetWidth;
+      padSigText.style.animation = 'revealSig ' + (fastMode.checked ? 0.9 : 2.6) + 's cubic-bezier(.25,.75,.35,1) forwards';
 
-    padStatus.classList.add('done');
-    padStatusText.textContent = 'erfasst';
+      await delay(fastMode.checked ? 900 : 2900);
+
+      padStatus.classList.add('done');
+      padStatusText.textContent = 'erfasst';
+
+      await delay(many ? 600 : 1000);
+    }
 
     const docText = $(textId);
     docText.textContent = label;
     docText.classList.add('reveal');
 
-    await delay(1000);
     field.classList.remove('waiting');
     field.classList.add('signed');
     padBubble.classList.remove('show');
@@ -3338,34 +3441,63 @@
         '<div class="qes-icon"><svg viewBox="0 0 24 24"><path d="M12 2 L20 5 V11 C20 16 16.5 20 12 22 C7.5 20 4 16 4 11 V5 Z" fill="#eaf0f6" stroke="#163a5c" stroke-width="1.3"/><path d="M8.4 12 L10.8 14.5 L16 9" fill="none" stroke="#163a5c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
         '<div class="qes-text"><b>Qualifiziert elektronisch signiert</b><span>Walter Büttner, Notar · ' + sigFormatLabel + '</span><span>§ 13a Abs. 2 BeurkG · ' + dateStr + ', ' + timeStr + ' Uhr</span></div>' +
       '</div>';
+    const sealSlot = $(ids().seal);
+    sealSlot.innerHTML =
+      '<div class="notar-seal" id="notarSeal" title="Dienstsiegel Walter Büttner, Notar in Schwetzingen">' +
+        '<svg viewBox="0 0 120 120">' +
+          '<defs>' +
+            '<path id="sealTopArc" d="M 19,60 A 41,41 0 0 1 101,60" />' +
+            '<path id="sealBotArc" d="M 101,62 A 41,41 0 0 1 19,62" />' +
+          '</defs>' +
+          '<circle cx="60" cy="60" r="57" fill="none" stroke="#0d2540" stroke-width="2.2"/>' +
+          '<circle cx="60" cy="60" r="49" fill="none" stroke="#0d2540" stroke-width="1.6"/>' +
+          '<circle cx="15" cy="60" r="3" fill="#0d2540"/>' +
+          '<circle cx="105" cy="60" r="3" fill="#0d2540"/>' +
+          '<text font-family="Georgia, serif" font-size="10.5" font-weight="600" letter-spacing="1.4" fill="#0d2540">' +
+            '<textPath href="#sealTopArc" startOffset="50%" text-anchor="middle">WALTER B\u00DCTTNER</textPath>' +
+          '</text>' +
+          '<text font-family="Georgia, serif" font-size="9.6" font-weight="600" letter-spacing="1" fill="#0d2540">' +
+            '<textPath href="#sealBotArc" startOffset="50%" text-anchor="middle">NOTAR IN SCHWETZINGEN</textPath>' +
+          '</text>' +
+          '<g transform="translate(60,65)">' +
+            '<g transform="translate(0,-31)">' +
+              '<path d="M -15,4 L -15,-2 L -11,-9 L -7,-2 L -3,-9 L 0,-2 L 3,-9 L 7,-2 L 11,-9 L 15,-2 L 15,4 Z" fill="none" stroke="#0d2540" stroke-width="1.6" stroke-linejoin="round"/>' +
+              '<circle cx="-11" cy="-10" r="1.4" fill="#0d2540"/><circle cx="0" cy="-10" r="1.4" fill="#0d2540"/><circle cx="11" cy="-10" r="1.4" fill="#0d2540"/>' +
+            '</g>' +
+            '<path d="M -15,-25 L 15,-25 L 15,-2 Q 15,15 0,23 Q -15,15 -15,-2 Z" fill="none" stroke="#0d2540" stroke-width="1.6"/>' +
+            '<g fill="#0d2540" stroke="none">' +
+              '<path d="M -10,-16 C -8,-18 -4,-18 -2,-16 C 0,-14 3,-14 6,-16 C 8,-17 9.5,-15 8,-13 C 10,-14 12,-12 10,-10.5 C 8,-9.5 5,-10.5 3,-9.5 C 0,-8.5 -3,-9.5 -6,-9.5 C -9,-9.5 -11,-11.5 -10,-13.5 Z"/>' +
+              '<path d="M -10,-4 C -8,-6 -4,-6 -2,-4 C 0,-2 3,-2 6,-4 C 8,-5 9.5,-3 8,-1 C 10,-2 12,0 10,1.5 C 8,2.5 5,1.5 3,2.5 C 0,3.5 -3,2.5 -6,2.5 C -9,2.5 -11,0.5 -10,-1.5 Z"/>' +
+              '<path d="M -10,8 C -8,6 -4,6 -2,8 C 0,10 3,10 6,8 C 8,7 9.5,9 8,11 C 10,10 12,12 10,13.5 C 8,14.5 5,13.5 3,14.5 C 0,15.5 -3,14.5 -6,14.5 C -9,14.5 -11,12.5 -10,10.5 Z"/>' +
+            '</g>' +
+          '</g>' +
+        '</svg>' +
+      '</div>';
     await delay(50);
     $('qesStamp').classList.add('show');
+    await delay(150);
+    $('notarSeal').classList.add('show');
     await delay(fastMode.checked ? 500 : 1500);
     notarField.classList.remove('waiting');
     notarField.classList.add('signed');
     markDone(r);
     setSignerState('notar','done');
 
-    // Signaturstrecke: die weiteren Urkunden werden ohne erneuten Aufruf mitsigniert
+    // Signaturstrecke: eine qualifizierte Signatur des Notars gilt für alle Urkunden zugleich —
+    // es ist keine erneute PIN-Eingabe oder zweite Unterschrift je Dokument erforderlich.
     if(queueMode && queue.length > 1){
-      $('qitem-0').classList.add('done');
-      $('qitem-0').querySelector('.qi-state').textContent = 'signiert ✓';
-      for(let i = 1; i < queue.length; i++){
-        const doc = queue[i];
+      const namesList = queue.map(d => d.title + ' (' + d.ref + ')').join(' · ');
+      const qr = log('Eine qualifizierte Signatur bezieht sich auf ' + queue.length + ' Urkunden zugleich', namesList);
+      await delay(fastMode.checked ? 350 : 950);
+      queue.forEach((doc, i) => {
         const item = $('qitem-' + i);
-        if(item){
-          item.classList.add('active');
-          item.querySelector('.qi-state').textContent = 'signiert …';
-        }
-        const qr = log('Signatur wird angebracht: ' + doc.title, doc.ref + ' · ohne erneuten Aufruf');
-        await delay(fastMode.checked ? 320 : 950);
-        markDone(qr);
         if(item){
           item.classList.remove('active');
           item.classList.add('done');
           item.querySelector('.qi-state').textContent = 'signiert ✓';
         }
-      }
+      });
+      markDone(qr);
     }
 
     r = log('Dokument wird nach PDF/A-2b gewandelt', 'Wandlung erfolgt durch die Notarsoftware');
@@ -3398,7 +3530,7 @@
       extra += '<div class="result-row"><span class="chk">✓</span><div><b>Elektronisch beglaubigte Abschrift</b> — zur Weiterverarbeitung beigefügt.</div></div>';
     }
     if(queueMode && queue.length > 1){
-      extra += '<div class="result-row"><span class="chk">✓</span><div><b>Signaturstrecke</b> — ' + queue.length + ' Urkunden in einem Durchgang signiert.</div></div>';
+      extra += '<div class="result-row"><span class="chk">✓</span><div><b>Signaturstrecke</b> — eine Signatur des Notars für ' + queue.length + ' Urkunden zugleich.</div></div>';
     }
     $('resultExtra').innerHTML = extra;
 
@@ -3412,6 +3544,24 @@
     setTrigger('SigNotar — abgeschlossen ✓', 'done');
     stopClock();
     running = false;
+
+    const doneExtra = $('doneExtra');
+    const doneNotes = [];
+    if(queueMode && queue.length > 1){
+      const numberWords = {2:'zwei',3:'drei',4:'vier',5:'fünf',6:'sechs',7:'sieben',8:'acht',9:'neun',10:'zehn'};
+      const countWord = numberWords[queue.length] || String(queue.length);
+      doneNotes.push('<div><span class="chk">✓</span> Es wurden ' + countWord + ' Urkunden signiert.</div>');
+    }
+    if(makeCertifiedCopy){
+      doneNotes.push('<div><span class="chk">✓</span> Zusätzlich wurde eine elektronisch beglaubigte Abschrift erstellt und der Notarsoftware mit übergeben.</div>');
+    }
+    if(doneNotes.length){
+      doneExtra.innerHTML = doneNotes.join('');
+      doneExtra.classList.add('show');
+    } else {
+      doneExtra.classList.remove('show');
+      doneExtra.innerHTML = '';
+    }
 
     await delay(400);
     doneOverlay.classList.add('show');
