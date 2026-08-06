@@ -1864,12 +1864,18 @@
   }
   .eudi-doc:hover{ border-color:#003399; background:#f5f8ff; }
   .eudi-doc:active{ transform:scale(.985); }
-  .eudi-open{
-    margin-left:auto; flex-shrink:0;
+  .eudi-doc .eudi-doc-right{ margin-left:auto; flex-shrink:0; display:flex; align-items:center; gap:7px; }
+  .eudi-doc .eudi-doc-check{ display:none; width:18px; height:18px; flex-shrink:0; }
+  .eudi-doc .eudi-doc-check.show{ display:block; }
+  .eudi-doc-check svg{ display:block; width:100%; height:100%; }
+  .eudi-doc .eudi-open{
+    flex-shrink:0;
     font-size:10.5px; font-weight:700; color:#003399; white-space:nowrap;
   }
   .eudi-release{ cursor:pointer; }
   .eudi-release:hover{ background:#00246b; }
+  .eudi-release.disabled{ background:#dde1e6; color:#9aa1ab; cursor:not-allowed; }
+  .eudi-release:disabled:hover{ background:#dde1e6; }
   .eudi-queue-note{
     font-size:10px; color:#003399; font-weight:700; text-align:center;
     letter-spacing:.03em; text-transform:uppercase;
@@ -1942,7 +1948,8 @@
     background:linear-gradient(160deg,#dfe6ef,#c3ccd8);
     box-shadow:inset -3px 3px 0 #fff;
   }
-  .eudi-doc b{ display:block; font-size:12.5px; color:#16202c; }
+  .eudi-doc > div{ min-width:0; flex:1; }
+  .eudi-doc b{ display:block; font-size:12.5px; color:#16202c; overflow-wrap:break-word; hyphens:auto; }
   .eudi-doc span{ display:block; font-size:10.5px; color:#8a9099; margin-top:2px; }
   .eudi-release{
     margin-top:auto;
@@ -2091,7 +2098,7 @@
     <div class="window">
       <div class="titlebar">
         <div class="word-mark">W</div>
-        <div class="fname">Kaufvertrag_UR-142-2026.docx — <b>Word</b></div>
+        <div class="fname"><span id="fnameText">Kaufvertrag_UR-142-2026.docx</span> — <b>Word</b></div>
         <div class="status-badge" id="titleBadge"><span class="dot"></span>signiert · PDF/A-2b</div>
         <div class="spacer"></div>
         <div class="dots">
@@ -2226,7 +2233,7 @@
           <div class="queue-intro">Sachlich zusammenhängende Urkunden werden gesammelt und anschließend in einem Durchgang gemeinsam signiert.</div>
           <div class="queue-list" id="queueList"></div>
           <div class="queue-actions">
-            <button class="queue-btn ghost" id="queueAdd">Weitere Urkunde hinzufügen</button>
+            <button class="queue-btn ghost" id="queueAdd">Weitere Beurkundung</button>
             <button class="queue-btn primary" id="queueStart">Signaturstrecke starten</button>
           </div>
         </div>
@@ -2305,7 +2312,7 @@
                 </span>
                 <b>NOTARIUS</b>
               </div>
-              <div class="nx-doc">Beurkundungsansicht — UR 142/2026</div>
+              <div class="nx-doc" id="nxDocLabel">Beurkundungsansicht — UR 142/2026</div>
               <div class="nx-right">
                 <div class="nx-avatar">WB</div>
               </div>
@@ -2526,10 +2533,13 @@
             <b id="walletDocTitle">Notarielle Urkunde</b>
             <span id="walletDocRef">UR 142/2026 · PDF/A</span>
           </div>
-          <span class="eudi-open">Ansehen ›</span>
+          <span class="eudi-doc-right">
+            <span class="eudi-doc-check" id="walletDocCheck"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#e4f3e9"/><path d="M7.5 12.3 L10.4 15.2 L16.5 8.8" fill="none" stroke="#2f7a4c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="eudi-open">Ansehen ›</span>
+          </span>
         </button>
         <div class="eudi-queue-note" id="walletQueueNote"></div>
-        <button class="eudi-release" id="walletRelease">Signatur freigeben</button>
+        <button class="eudi-release disabled" id="walletRelease" disabled>Signieren</button>
         <div class="eudi-done" id="walletDone">
           <span class="eudi-check">✓</span>
           <span>Signatur erteilt</span>
@@ -2610,7 +2620,7 @@
       </div>
       <div class="sso-meta">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
-        <span>Verschlüsselte Verbindung im NotarNetz · ohne gültigen Benutzerkontext kein Aufruf</span>
+        <span>Verschlüsselte Verbindung in NotarNetz wird hergestellt</span>
       </div>
     </div>
   </div>
@@ -2713,6 +2723,10 @@
   // Signaturstrecke: gesammelte, sachlich zusammenhängende Urkunden
   let queue = [];
   let queueMode = false;
+  // Weitere Beurkundung: Dokument wird zunächst in der normalen Ansicht geöffnet
+  // (der Notar liest es vor) und erst beim erneuten Aufruf von SigNotar der Strecke hinzugefügt
+  let pendingQueueDoc = null;
+  const fnameText = $('fnameText'), nxDocLabel = $('nxDocLabel');
   const MAIN_DOC = { title:'Kaufvertrag', ref:'UR 142/2026', key:'kauf' };
   const RELATED_DOCS = [
     { title:'Finanzierungsvollmacht', ref:'UR 143/2026', key:'vollmacht' },
@@ -2722,6 +2736,9 @@
   const walletRelease = $('walletRelease'), walletDone = $('walletDone');
   const walletDoc = $('walletDoc'), walletReader = $('walletReader');
   const walletDocTitle = $('walletDocTitle'), walletDocRef = $('walletDocRef'), walletQueueNote = $('walletQueueNote');
+  const walletDocCheck = $('walletDocCheck');
+  let walletDocOpened = false;
+  let walletDocOpenResolve = null;
   const walletReaderPages = $('walletReaderPages'), walletReaderClose = $('walletReaderClose');
   const ipadSignOverlay = $('ipadSignOverlay'), isName = $('isName'), isSigText = $('isSigText'), isEyebrow = $('isEyebrow');
   const isStatus = $('isStatus'), isStatusText = $('isStatusText'), isStylus = $('isStylus');
@@ -3155,8 +3172,14 @@
   queueAdd.addEventListener('click', () => {
     const next = RELATED_DOCS[queue.length - 1];
     if(!next) return;
-    queue.push(next);
-    renderQueue();
+    pendingQueueDoc = next;
+    // Die weitere Urkunde wird zunächst in der normalen Beurkundungsansicht geöffnet
+    // (der Notar liest sie vor); erst der erneute Aufruf von SigNotar stellt sie in die Strecke ein.
+    xsignWindow.classList.remove('show');
+    if(fnameText) fnameText.textContent = next.title + '_' + next.ref.replace(/[\s/]+/g, '-') + '.docx';
+    if(nxDocLabel) nxDocLabel.textContent = 'Beurkundungsansicht — ' + next.ref;
+    if(mode === 'standalone') showNxPage(0);
+    if(pageEl) pageEl.scrollTop = 0;
   });
 
   queueStart.addEventListener('click', () => {
@@ -3189,6 +3212,17 @@
     if(!walletReaderPages.innerHTML) buildWalletReader();
     walletReaderPages.scrollTop = 0;
     walletReader.classList.add('show');
+
+    if(!walletDocOpened){
+      walletDocOpened = true;
+      walletDocCheck.classList.add('show');
+      walletRelease.disabled = false;
+      walletRelease.classList.remove('disabled');
+      if(walletDocOpenResolve){
+        walletDocOpenResolve();
+        walletDocOpenResolve = null;
+      }
+    }
   });
   walletReaderClose.addEventListener('click', () => {
     walletReader.classList.remove('show');
@@ -3231,14 +3265,24 @@
       } else {
         walletQueueNote.classList.remove('show');
       }
-      walletRelease.textContent = many ? ('Signatur freigeben (' + (i+1) + '/' + docs.length + ')') : 'Signatur freigeben';
-      walletRelease.classList.remove('gone','pressed');
+      walletRelease.textContent = many ? ('Signieren (' + (i+1) + '/' + docs.length + ')') : 'Signieren';
+      walletRelease.classList.remove('gone','pressed','waiting');
+      walletRelease.classList.add('disabled');
+      walletRelease.disabled = true;
       walletDone.classList.remove('show');
       walletReader.classList.remove('show');
+      walletDocCheck.classList.remove('show');
+      walletDocOpened = false;
       walletBubble.classList.add('show');
 
-      // Die Freigabe erfolgt durch den Beteiligten selbst — hier per Klick
+      // Die Urkunde muss zunächst einmal in der Wallet geöffnet werden,
+      // bevor die Signatur freigegeben werden kann
       await delay(many ? 450 : 700);
+      if(!walletDocOpened){
+        await new Promise((resolve) => { walletDocOpenResolve = resolve; });
+      }
+
+      // Erst nach dem Öffnen wird der Button aktiv (blau) und kann geklickt werden
       walletRelease.classList.add('waiting');
       await new Promise((resolve) => {
         walletRelease.onclick = () => {
@@ -3781,7 +3825,16 @@
   async function startFlow(){
     if(running || triggerIsDone()) return;
     // Liegt bereits eine Urkunde in der Strecke, führt der Aufruf dorthin zurück
-    if(queueMode){ openQueueView(); return; }
+    if(queueMode){
+      if(pendingQueueDoc){
+        queue.push(pendingQueueDoc);
+        pendingQueueDoc = null;
+        if(fnameText) fnameText.textContent = MAIN_DOC.title + '_' + MAIN_DOC.ref.replace(/[\s/]+/g, '-') + '.docx';
+        if(nxDocLabel) nxDocLabel.textContent = 'Beurkundungsansicht — ' + MAIN_DOC.ref;
+      }
+      openQueueView();
+      return;
+    }
     running = true;
     setTrigger(mode === 'classic' ? 'Notarsoftware finalisiert …' : 'NOTARIUS finalisiert …', 'busy');
     await runNotarFinalization();
