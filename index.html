@@ -2017,6 +2017,39 @@
   }
   .clickdummy-imprint a{ color:#8d9096; text-decoration:underline; }
   .clickdummy-imprint a:hover{ color:#5c6672; }
+
+  /* ---------- Pause / Fortsetzen (Leertaste) ---------- */
+  .pause-indicator{
+    position:fixed;
+    left:50%; top:22px;
+    transform:translateX(-50%) translateY(-8px);
+    z-index:900;
+    display:flex; align-items:center; gap:9px;
+    padding:8px 15px 8px 12px;
+    border-radius:999px;
+    background:rgba(20,23,26,.86);
+    color:#f4f2ee;
+    font-family:var(--ui);
+    font-size:12px; font-weight:600; letter-spacing:.01em;
+    box-shadow:0 10px 26px -12px rgba(0,0,0,.55);
+    backdrop-filter:blur(4px);
+    opacity:0; pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .pause-indicator.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .pause-indicator .pi-glyph{
+    width:15px; height:15px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pause-indicator .pi-glyph svg{ display:block; width:100%; height:100%; }
+  .pause-indicator .pi-hint{
+    font-size:9.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+    color:#9a978f;
+    padding-left:9px; margin-left:2px;
+    border-left:1px solid rgba(244,242,238,.22);
+  }
+  /* Laufende CSS-Animationen einfrieren, solange pausiert ist */
+  body.demo-paused *{ animation-play-state:paused !important; }
 </style>
 
 </head>
@@ -2373,6 +2406,12 @@
   <div class="clickdummy-imprint">
     Klickdummy zu Diskussionszwecken · Notarassessor Dr. Robert Tinnefeld, Notarkammer Baden-Württemberg ·
     Diese Datei wird ggf. über GitHub bereitgestellt; es gilt der <a href="https://docs.github.com/de/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">Datenschutzhinweis von GitHub</a>.
+  </div>
+
+  <div class="pause-indicator" id="pauseIndicator" aria-hidden="true">
+    <span class="pi-glyph" id="pauseGlyph"></span>
+    <span class="pi-label" id="pauseLabel">Pause</span>
+    <span class="pi-hint">Leertaste</span>
   </div>
 
   <div class="pad-bubble" id="padBubble">
@@ -2783,10 +2822,97 @@
     notar: "W. Büttner"
   };
 
+  // ---------- Pause / Fortsetzen über die Leertaste ----------
+  // Der gesamte Ablauf hängt an delay(); wird dort pausiert, hält der Prozess
+  // an genau der Stelle an, an der er sich gerade befindet.
+  let demoPaused = false;
+  const pendingWaits = [];   // laufende delay()-Wartezeiten
+  const pausedGates = [];    // Prozesse, die auf das Fortsetzen warten
+
   function delay(ms){
     const factor = fastMode.checked ? 0.3 : 1;
-    return new Promise(r => setTimeout(r, ms * factor));
+    return pausableWait(ms * factor);
   }
+
+  function pausableWait(total){
+    return new Promise(resolve => {
+      let remaining = total;
+      let startedAt = 0;
+      let timer = null;
+
+      const entry = {
+        start(){
+          startedAt = Date.now();
+          timer = setTimeout(() => {
+            const i = pendingWaits.indexOf(entry);
+            if(i >= 0) pendingWaits.splice(i, 1);
+            resolve();
+          }, remaining);
+        },
+        stop(){
+          if(timer !== null){
+            clearTimeout(timer);
+            timer = null;
+            remaining = Math.max(0, remaining - (Date.now() - startedAt));
+          }
+        }
+      };
+
+      pendingWaits.push(entry);
+      if(!demoPaused) entry.start();
+    });
+  }
+
+  // Warte-Punkte, die auf eine Nutzereingabe hören (z. B. Wallet-Freigabe),
+  // sollen nach dem Klick nicht weiterlaufen, solange pausiert ist.
+  function pauseGate(){
+    if(!demoPaused) return Promise.resolve();
+    return new Promise(resolve => pausedGates.push(resolve));
+  }
+
+  const PAUSE_GLYPH = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5" width="3.6" height="14" rx="1.1"/><rect x="13.4" y="5" width="3.6" height="14" rx="1.1"/></svg>';
+  const PLAY_GLYPH  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.4 L18.4 12 L8 18.6 Z"/></svg>';
+
+  let pauseHideTimer = null;
+
+  function setDemoPaused(next){
+    if(next === demoPaused) return;
+    demoPaused = next;
+
+    const indicator = $('pauseIndicator');
+    const glyph = $('pauseGlyph');
+    const label = $('pauseLabel');
+
+    if(demoPaused){
+      pendingWaits.forEach(w => w.stop());
+      document.body.classList.add('demo-paused');
+      if(glyph) glyph.innerHTML = PAUSE_GLYPH;
+      if(label) label.textContent = 'Pause';
+      if(pauseHideTimer){ clearTimeout(pauseHideTimer); pauseHideTimer = null; }
+      if(indicator) indicator.classList.add('show');
+    } else {
+      document.body.classList.remove('demo-paused');
+      pendingWaits.forEach(w => w.start());
+      while(pausedGates.length) pausedGates.shift()();
+      if(glyph) glyph.innerHTML = PLAY_GLYPH;
+      if(label) label.textContent = 'Fortsetzen';
+      // Der Hinweis blendet sich nach kurzer Zeit von selbst wieder aus
+      if(pauseHideTimer) clearTimeout(pauseHideTimer);
+      pauseHideTimer = setTimeout(() => {
+        if(!demoPaused && indicator) indicator.classList.remove('show');
+      }, 900);
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if(e.code !== 'Space' && e.key !== ' ') return;
+    const t = e.target;
+    const tag = t && t.tagName ? t.tagName.toLowerCase() : '';
+    // In Eingabefeldern behält die Leertaste ihre normale Funktion
+    if(tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
+    e.preventDefault();   // verhindert Scrollen und das Auslösen fokussierter Schaltflächen
+    setDemoPaused(!demoPaused);
+  });
 
   const loremParas = [
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
@@ -3013,6 +3139,7 @@
     clockSeconds = 0;
     tpClock.textContent = '00:00';
     clockTimer = setInterval(() => {
+      if(demoPaused) return;
       clockSeconds++;
       const m = String(Math.floor(clockSeconds/60)).padStart(2,'0');
       const s = String(clockSeconds%60).padStart(2,'0');
@@ -3281,6 +3408,7 @@
       if(!walletDocOpened){
         await new Promise((resolve) => { walletDocOpenResolve = resolve; });
       }
+      await pauseGate();
 
       // Erst nach dem Öffnen wird der Button aktiv (blau) und kann geklickt werden
       walletRelease.classList.add('waiting');
@@ -3291,6 +3419,7 @@
           resolve();
         };
       });
+      await pauseGate();
 
       walletRelease.classList.add('pressed');
       await delay(fastMode.checked ? 420 : 935);
